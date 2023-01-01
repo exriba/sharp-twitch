@@ -1,0 +1,123 @@
+﻿namespace SharpTwitch.Core.Enums
+{
+    public enum Scope
+    {
+        ANALYTICS_READ_EXTENSIONS,
+        ANALYTICS_READ_GAMES,
+        BITS_READ,
+        CHANNEL_EDIT_COMMERCIAL,
+        CHANNEL_MANAGE_BROADCAST,
+        CHANNEL_MANAGE_EXTENSIONS,
+        CHANNEL_MANAGE_MODERATORS,
+        CHANNEL_MANAGE_POLLS,
+        CHANNEL_MANAGE_PREDICTIONS,
+        CHANNEL_MANAGE_RAIDS,
+        CHANNEL_MANAGE_REDEMPTIONS,
+        CHANNEL_MANAGE_SCHEDULE,
+        CHANNEL_MANAGE_VIDEOS,
+        CHANNEL_READ_EDITORS,
+        CHANNEL_READ_GOALS,
+        CHANNEL_READ_HYPE_TRAIN,
+        CHANNEL_READ_POLLS,
+        CHANNEL_READ_PREDICTIONS,
+        CHANNEL_READ_REDEMPTIONS,
+        CHANNEL_READ_STREAM_KEY,
+        CHANNEL_READ_SUBSCRIPTIONS,
+        CHANNEL_READ_VIPS,
+        CHANNEL_MANAGE_VIPS,
+        CLIPS_EDIT,
+        MODERATION_READ,
+        MODERATOR_MANAGE_ANNOUNCEMENTS,
+        MODERATOR_MANAGE_AUTOMOD,
+        MODERATOR_READ_AUTOMOD_SETTINGS,
+        MODERATOR_MANAGE_AUTOMOD_SETTINGS,
+        MODERATOR_MANAGE_BANNED_USERS,
+        MODERATOR_READ_BLOCKED_TERMS,
+        MODERATOR_MANAGE_BLOCKED_TERMS,
+        MODERATOR_MANAGE_CHAT_MESSAGES,
+        MODERATOR_READ_CHAT_SETTINGS,
+        MODERATOR_MANAGE_CHAT_SETTINGS,
+        USER_EDIT,
+        USER_EDIT_FOLLOWS,
+        USER_MANAGE_BLOCKED_USERS,
+        USER_READ_BLOCKED_USERS,
+        USER_READ_BROADCAST,
+        USER_MANAGE_CHAT_COLOR,
+        USER_READ_EMAIL,
+        USER_READ_FOLLOWS,
+        USER_READ_SUBSCRIPTIONS,
+        USER_MANAGE_WHISPERS,
+        CHANNEL_MODERATE,
+        CHAT_EDIT,
+        CHAT_READ,
+        WHISPERS_READ,
+        WHISPERS_EDIT
+    }
+
+    public static class ScopeExtensions
+    {
+        /// <summary>
+        /// Converts a SharpTwitch scope to a Twitch authentication scope.
+        /// </summary>
+        /// <param name="scope">Scope value</param>
+        /// <see cref="https://dev.twitch.tv/docs/authentication/scopes"/>
+        /// <returns>Twitch Scope</returns>
+        public static string ConvertToString(this Scope scope)
+        {
+            return scope switch
+            {
+                Scope.ANALYTICS_READ_EXTENSIONS => "analytics:read:extensions",
+                Scope.ANALYTICS_READ_GAMES => "analytics:read:games",
+                Scope.BITS_READ => "bits:read",
+                Scope.CHANNEL_EDIT_COMMERCIAL => "channel:edit:commercial",
+                Scope.CHANNEL_MANAGE_BROADCAST => "channel:manage:broadcast",
+                Scope.CHANNEL_MANAGE_EXTENSIONS => "channel:manage:extensions",
+                Scope.CHANNEL_MANAGE_MODERATORS => "channel:manage:moderators",
+                Scope.CHANNEL_MANAGE_POLLS => "channel:manage:polls",
+                Scope.CHANNEL_MANAGE_PREDICTIONS => "channel:manage:predictions",
+                Scope.CHANNEL_MANAGE_RAIDS => "channel:manage:raids",
+                Scope.CHANNEL_MANAGE_REDEMPTIONS => "channel:manage:redemptions",
+                Scope.CHANNEL_MANAGE_SCHEDULE => "channel:manage:schedule",
+                Scope.CHANNEL_MANAGE_VIDEOS => "channel:manage:videos",
+                Scope.CHANNEL_READ_EDITORS => "channel:read:editors",
+                Scope.CHANNEL_READ_GOALS => "channel:read:goals",
+                Scope.CHANNEL_READ_HYPE_TRAIN => "channel:read:hype_train",
+                Scope.CHANNEL_READ_POLLS => "channel:read:polls",
+                Scope.CHANNEL_READ_PREDICTIONS => "channel:read:predictions",
+                Scope.CHANNEL_READ_REDEMPTIONS => "channel:read:redemptions",
+                Scope.CHANNEL_READ_STREAM_KEY => "channel:read:stream_key",
+                Scope.CHANNEL_READ_SUBSCRIPTIONS => "channel:read:subscriptions",
+                Scope.CHANNEL_READ_VIPS => "channel:read:vips",
+                Scope.CHANNEL_MANAGE_VIPS => "channel:manage:vips",
+                Scope.CLIPS_EDIT => "clips:edit",
+                Scope.MODERATION_READ => "moderation:read",
+                Scope.MODERATOR_MANAGE_ANNOUNCEMENTS => "moderator:manage:announcements",
+                Scope.MODERATOR_MANAGE_AUTOMOD => "moderator:manage:automod",
+                Scope.MODERATOR_READ_AUTOMOD_SETTINGS => "moderator:read:automod_settings",
+                Scope.MODERATOR_MANAGE_AUTOMOD_SETTINGS => "moderator:manage:automod_settings",
+                Scope.MODERATOR_MANAGE_BANNED_USERS => "moderator:manage:banned_users",
+                Scope.MODERATOR_READ_BLOCKED_TERMS => "moderator:read:blocked_terms",
+                Scope.MODERATOR_MANAGE_BLOCKED_TERMS => "moderator:manage:blocked_terms",
+                Scope.MODERATOR_MANAGE_CHAT_MESSAGES => "moderator:manage:chat_messages",
+                Scope.MODERATOR_READ_CHAT_SETTINGS => "moderator:read:chat_settings",
+                Scope.MODERATOR_MANAGE_CHAT_SETTINGS => "moderator:read:chat_settings",
+                Scope.USER_EDIT => "user:edit",
+                Scope.USER_EDIT_FOLLOWS => "user:edit:follows",
+                Scope.USER_MANAGE_BLOCKED_USERS => "user:manage:blocked_users",
+                Scope.USER_READ_BLOCKED_USERS => "user:read:blocked_users",
+                Scope.USER_READ_BROADCAST => "user:read:broadcast",
+                Scope.USER_MANAGE_CHAT_COLOR => "user:manage:chat_color",
+                Scope.USER_READ_EMAIL => "user:read:email",
+                Scope.USER_READ_FOLLOWS => "user:read:follows",
+                Scope.USER_READ_SUBSCRIPTIONS => "user:read:subscriptions",
+                Scope.USER_MANAGE_WHISPERS => "user:manage:whispers",
+                Scope.CHANNEL_MODERATE => "channel:moderate",
+                Scope.CHAT_EDIT => "chat:edit",
+                Scope.CHAT_READ => "chat:read",
+                Scope.WHISPERS_READ => "whispers:read",
+                Scope.WHISPERS_EDIT => "whispers:edit",
+                _ => throw new ArgumentException("Invalid Scope", nameof(scope)),
+            };
+        }
+    }
+}
