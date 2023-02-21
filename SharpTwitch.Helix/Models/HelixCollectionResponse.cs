@@ -1,11 +1,9 @@
-﻿using Newtonsoft.Json;
-using SharpTwitch.Core.Interfaces;
+﻿using SharpTwitch.Core.Models.Response;
 
 namespace SharpTwitch.Helix.Models
 {
-    public class HelixCollectionResponse<T> : IResponse
+    public class HelixCollectionResponse<T> : IResponse where T : class
     {
-        [JsonProperty(PropertyName = "data")]
-        public IList<T> Data { get; set; } = new List<T>();
+        public IList<T> Data { get; set; }
     }
 }

@@ -1,16 +1,19 @@
-﻿using SharpTwitch.Core.Interfaces;
+﻿using SharpTwitch.Auth;
+using SharpTwitch.Helix;
+using SharpTwitch.Core;
+using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch
 {
     public sealed class TwitchAPI
     {
-        public readonly Auth.AuthApi Auth;
-        public readonly Helix.HelixApi Helix;
+        public readonly AuthApi AuthApi;
+        public readonly HelixApi HelixApi;
 
         public TwitchAPI(ICoreSettings coreSettings, IApiCore apiCore)
         {
-            Auth = new Auth.AuthApi(coreSettings, apiCore);
-            Helix = new Helix.HelixApi(coreSettings, apiCore);
+            AuthApi = new AuthApi(coreSettings, apiCore);
+            HelixApi = new HelixApi(coreSettings, apiCore);
         }
     }
 }

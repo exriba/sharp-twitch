@@ -1,7 +1,8 @@
 ﻿using Moq;
 using SharpTwitch.Auth.Models;
+using SharpTwitch.Core;
+using SharpTwitch.Core.Settings;
 using SharpTwitch.Core.Enums;
-using SharpTwitch.Core.Interfaces;
 
 namespace SharpTwitch.Auth.Tests
 {
