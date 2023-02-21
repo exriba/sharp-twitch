@@ -1,5 +1,6 @@
 using Moq;
-using SharpTwitch.Core.Interfaces;
+using SharpTwitch.Core;
+using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch.Tests
 {
@@ -17,8 +18,8 @@ namespace SharpTwitch.Tests
         [Fact]
         public void TwitchAPI_Create()
         {
-            var auth = _twitchAPI.Auth;
-            var helix = _twitchAPI.Helix;
+            var auth = _twitchAPI.AuthApi;
+            var helix = _twitchAPI.HelixApi;
 
             Assert.NotNull(auth);
             Assert.NotNull(helix);

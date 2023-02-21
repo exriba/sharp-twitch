@@ -1,5 +1,6 @@
 using Moq;
-using SharpTwitch.Core.Interfaces;
+using SharpTwitch.Core;
+using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch.Helix.Tests
 {
@@ -17,9 +18,13 @@ namespace SharpTwitch.Helix.Tests
         [Fact]
         public void HelixApi_Create()
         {
-            var channelPoints = _helixApi.ChannelPoints;
+            var users = _helixApi.Users;
+            var customRewards = _helixApi.CustomRewards;
+            var subscriptions = _helixApi.Subscriptions;
 
-            Assert.NotNull(channelPoints);
+            Assert.NotNull(users);
+            Assert.NotNull(customRewards);
+            Assert.NotNull(subscriptions);
         }
     }
 }

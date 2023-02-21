@@ -1,23 +1,13 @@
-﻿using Newtonsoft.Json;
-using SharpTwitch.Core.Interfaces;
+﻿using SharpTwitch.Core.Models.Response;
 
 namespace SharpTwitch.Auth.Models
 {
     public class ValidateTokenResponse : IResponse
     {
-        [JsonProperty(PropertyName = "client_id")]
-        public string ClientId { get; private set; }
-
-        [JsonProperty(PropertyName = "login")]
-        public string Login { get; private set; }
-
-        [JsonProperty(PropertyName = "scopes")]
-        public List<string> Scopes { get; private set; }
-
-        [JsonProperty(PropertyName = "user_id")]
-        public string UserId { get; private set; }
-
-        [JsonProperty(PropertyName = "expires_in")]
-        public int ExpiresIn { get; private set; }
+        public string ClientId { get; set; } = string.Empty;
+        public string Login { get; set; } = string.Empty;
+        public string[] Scopes { get; set; } = Array.Empty<string>();
+        public string UserId { get; set; } = string.Empty;
+        public int ExpiresIn { get; set; }
     }
 }
