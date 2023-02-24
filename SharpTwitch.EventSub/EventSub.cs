@@ -98,9 +98,9 @@ namespace SharpTwitch.EventSub
             if (!_webSocketClient.Connected)
                 return false;
 
-#pragma warning disable 4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Factory.StartNew(ConnectionCheckAsync, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-#pragma warning disable 4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(ConnectionCheckAsync, _cancellationTokenSource.Token);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             return true;
         }
