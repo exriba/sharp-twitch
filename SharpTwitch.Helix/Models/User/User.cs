@@ -18,7 +18,7 @@ namespace SharpTwitch.Helix.Models.User
         public DateTime CreatedAt { get; set; }
 
         [JsonIgnore]
-        public BroadcasterType UserBroadcasterType => string.IsNullOrWhiteSpace(Type) ? 
+        public BroadcasterType UserBroadcasterType => string.IsNullOrWhiteSpace(BroadcasterType) ? 
             Core.Enums.BroadcasterType.NORMAL : Enum.Parse<BroadcasterType>(BroadcasterType, true);
     }
 }
