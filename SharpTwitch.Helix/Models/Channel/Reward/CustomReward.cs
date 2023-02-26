@@ -7,7 +7,7 @@ namespace SharpTwitch.Helix.Models.Channel.Reward
         public string Id { get; set; } = string.Empty;
         public string BroadcasterName { get; set; } = string.Empty;
         public string BroadcasterLogin { get; set; } = string.Empty;
-        public string BroadcasterId { get; set; } = string.Empty;
+        public string BroadcasterUserId { get; set; } = string.Empty;
         public Image Image { get; set; } = new Image();
         public string BackgroundColor { get; set; } = string.Empty;
         public bool IsEnabled { get; set; }
