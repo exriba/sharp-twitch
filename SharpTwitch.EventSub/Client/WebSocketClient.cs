@@ -6,11 +6,11 @@ using SharpTwitch.EventSub.Core.Models.Client;
 
 namespace SharpTwitch.EventSub.Client
 {
-    internal class WebSocketClient : IDisposable
+    public class WebSocketClient : IDisposable
     {
         #region Events
-        public event EventHandler<T>? OnDataMessage;
-        public event EventHandler<ErrorMessageArgs>? OnErrorMessage;
+        internal event EventHandler<T>? OnDataMessage;
+        internal event EventHandler<ErrorMessageArgs>? OnErrorMessage;
         #endregion
 
         private readonly ClientWebSocket _webSocket;
@@ -25,7 +25,7 @@ namespace SharpTwitch.EventSub.Client
         public bool Faulted => _webSocket.CloseStatus is not WebSocketCloseStatus.Empty && 
             _webSocket.CloseStatus is not WebSocketCloseStatus.NormalClosure;
 
-        public async Task<bool> ConnectAsync(Uri uri)
+        internal async Task<bool> ConnectAsync(Uri uri)
         {
             Guard.Against.Null(uri, nameof(uri));
 
@@ -50,7 +50,7 @@ namespace SharpTwitch.EventSub.Client
             }
         }
 
-        public async Task<bool> DisconnectAsync()
+        internal async Task<bool> DisconnectAsync()
         {
             try
             {
@@ -114,7 +114,7 @@ namespace SharpTwitch.EventSub.Client
             }
         }
 
-        public CloseDetails GetCloseDetails() 
+        internal CloseDetails GetCloseDetails() 
         {
             return new CloseDetails
             {
