@@ -30,7 +30,7 @@ namespace SharpTwitch.Core
 
             var uri = BuildUri(fragment, queryParams);
             var client = CreateClient(headers);
-            var responseMessage = await client.GetAsync(uri, cancellationToken);
+            var responseMessage = await client.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
             return await HandleResponse<T>(responseMessage, cancellationToken);
         }
@@ -41,7 +41,7 @@ namespace SharpTwitch.Core
             Guard.Against.Null(formUrlEncodedContent, nameof(formUrlEncodedContent));
 
             var client = CreateClient(headers);
-            var responseMessage = await client.PostAsync(fragment.ConvertToString(), formUrlEncodedContent, cancellationToken);
+            var responseMessage = await client.PostAsync(fragment.ConvertToString(), formUrlEncodedContent, cancellationToken).ConfigureAwait(false);
 
             return await HandleResponse<T>(responseMessage, cancellationToken);
         }
@@ -52,7 +52,7 @@ namespace SharpTwitch.Core
             Guard.Against.Null(stringContent, nameof(stringContent));
 
             var client = CreateClient(headers);
-            var responseMessage = await client.PostAsync(fragment.ConvertToString(), stringContent, cancellationToken);
+            var responseMessage = await client.PostAsync(fragment.ConvertToString(), stringContent, cancellationToken).ConfigureAwait(false);
 
             return await HandleResponse<T>(responseMessage, cancellationToken);
         }
@@ -63,7 +63,7 @@ namespace SharpTwitch.Core
 
             var uri = BuildUri(fragment, queryParams);
             var client = CreateClient(headers);
-            var responseMessage = await client.DeleteAsync(uri, cancellationToken);
+            var responseMessage = await client.DeleteAsync(uri, cancellationToken).ConfigureAwait(false);
 
             await HandleResponse(responseMessage, cancellationToken);
         }

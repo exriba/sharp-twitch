@@ -38,7 +38,8 @@ namespace SharpTwitch.Helix.Users
                     queryParams.Add(new KeyValuePair<QueryParameter, string>(QueryParameter.ID, userId));
             }
 
-            var response = await _apiCore.GetAsync<HelixCollectionResponse<User>>(UrlFragment.HELIX_USER, headers, queryParams, cancellationToken);
+            var response = await _apiCore.GetAsync<HelixCollectionResponse<User>>(UrlFragment.HELIX_USER, headers, queryParams, cancellationToken)
+                                         .ConfigureAwait(false);
             return response.Data;
         }
     }

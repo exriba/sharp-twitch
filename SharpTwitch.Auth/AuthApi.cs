@@ -38,7 +38,8 @@ namespace SharpTwitch.Auth
             var args = content.ToDictionary(kvp => kvp.Key.ToString().ToLower(), kvp => kvp.Value);
             var formUrlEncodedContent = new FormUrlEncodedContent(args);
 
-            return await _apiCore.PostAsync<AccessTokenResponse>(UrlFragment.OAUTH2_TOKEN, headers, formUrlEncodedContent, cancellationToken);
+            return await _apiCore.PostAsync<AccessTokenResponse>(UrlFragment.OAUTH2_TOKEN, headers, formUrlEncodedContent, cancellationToken)
+                                 .ConfigureAwait(false);
         }
 
         public async Task<RefreshTokenResponse> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken)
@@ -61,7 +62,8 @@ namespace SharpTwitch.Auth
             var args = content.ToDictionary(kvp => kvp.Key.ToString().ToLower(), kvp => kvp.Value);
             var formUrlEncodedContent = new FormUrlEncodedContent(args);
 
-            return await _apiCore.PostAsync<RefreshTokenResponse>(UrlFragment.OAUTH2_TOKEN, headers, formUrlEncodedContent, cancellationToken);
+            return await _apiCore.PostAsync<RefreshTokenResponse>(UrlFragment.OAUTH2_TOKEN, headers, formUrlEncodedContent, cancellationToken)
+                                 .ConfigureAwait(false);
         }
 
         public async Task<ValidateTokenResponse> ValidateAccessTokenAsync(string accessToken, CancellationToken cancellationToken)
@@ -73,7 +75,8 @@ namespace SharpTwitch.Auth
                 { Header.AUTHORIZATION_ACCESS_TOKEN, accessToken }
             };
 
-            return await _apiCore.GetAsync<ValidateTokenResponse>(UrlFragment.OAUTH2_TOKEN_VALIDATION, headers, null, cancellationToken);
+            return await _apiCore.GetAsync<ValidateTokenResponse>(UrlFragment.OAUTH2_TOKEN_VALIDATION, headers, null, cancellationToken)
+                                 .ConfigureAwait(false);
         }
     }
 }

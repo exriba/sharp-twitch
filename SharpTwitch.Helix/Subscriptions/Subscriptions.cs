@@ -37,7 +37,8 @@ namespace SharpTwitch.Helix.Subscriptions
                 { QueryParameter.ID, subscriptionId },
             };
 
-            await _apiCore.DeleteAsync(UrlFragment.HELIX_EVENTSUB_SUBSCRIPTION, headers, queryParams, cancellationToken);
+            await _apiCore.DeleteAsync(UrlFragment.HELIX_EVENTSUB_SUBSCRIPTION, headers, queryParams, cancellationToken)
+                          .ConfigureAwait(false);
         }
 
         public async Task<HelixSubscriptionResponse<Subscription>> GetEventSubSubscriptionAsync(string broadcasterId, string authCode, CancellationToken cancellationToken)
@@ -51,7 +52,8 @@ namespace SharpTwitch.Helix.Subscriptions
                 { Header.CLIENT_ID, _coreSettings.ClientId },
             };
 
-            return await _apiCore.GetAsync<HelixSubscriptionResponse<Subscription>>(UrlFragment.HELIX_EVENTSUB_SUBSCRIPTION, headers, null, cancellationToken);
+            return await _apiCore.GetAsync<HelixSubscriptionResponse<Subscription>>(UrlFragment.HELIX_EVENTSUB_SUBSCRIPTION, headers, null, cancellationToken)
+                                 .ConfigureAwait(false);
         }
 
         public async Task<HelixSubscriptionResponse<Subscription>> CreateEventSubSubscriptionAsync(string broadcasterId, string authCode, string sessionId, SubscriptionType subscriptionType, CancellationToken cancellationToken)
@@ -85,7 +87,8 @@ namespace SharpTwitch.Helix.Subscriptions
             var requestBodyString = JsonSerializer.Serialize(requestBody, _apiCore.JsonSerializerOptions);
             var content = new StringContent(requestBodyString, Encoding.UTF8, Header.CONTENT_TYPE_APPLICATION_JSON.ConvertToString());
 
-            return await _apiCore.PostAsync<HelixSubscriptionResponse<Subscription>>(UrlFragment.HELIX_EVENTSUB_SUBSCRIPTION, headers, content, cancellationToken);
+            return await _apiCore.PostAsync<HelixSubscriptionResponse<Subscription>>(UrlFragment.HELIX_EVENTSUB_SUBSCRIPTION, headers, content, cancellationToken)
+                                 .ConfigureAwait(false);
         }
     }
 }
