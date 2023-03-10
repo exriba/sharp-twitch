@@ -34,7 +34,8 @@ namespace SharpTwitch.Helix.Rewards
                 { QueryParameter.BROADCASTER_ID, broadcasterId },
             };
 
-            var response = await _apiCore.GetAsync<HelixCollectionResponse<CustomReward>>(UrlFragment.HELIX_CUSTOM_REWARDS, headers, queryParams, cancellationToken);
+            var response = await _apiCore.GetAsync<HelixCollectionResponse<CustomReward>>(UrlFragment.HELIX_CUSTOM_REWARDS, headers, queryParams, cancellationToken)
+                                         .ConfigureAwait(false);
             return response.Data;
         }
     }

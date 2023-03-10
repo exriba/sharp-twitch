@@ -93,13 +93,13 @@ namespace SharpTwitch.EventSub
         {
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
 
-            await webSocketClient.ConnectAsync(uri);
+            await webSocketClient.ConnectAsync(uri).ConfigureAwait(false);
 
             if (!webSocketClient.Connected)
                 return false;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Run(ConnectionCheckAsync, _cancellationTokenSource.Token).ConfigureAwait(false);
+            Task.Run(ConnectionCheckAsync, _cancellationTokenSource.Token);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             return true;
@@ -111,7 +111,7 @@ namespace SharpTwitch.EventSub
                 return true;
 
             _cancellationTokenSource.Cancel();
-            return await webSocketClient.DisconnectAsync();
+            return await webSocketClient.DisconnectAsync().ConfigureAwait(false);
         }
 
         public async Task<bool> ReconnectAsync(Uri? uri = null)
@@ -124,7 +124,7 @@ namespace SharpTwitch.EventSub
                 webSocketClient.OnDataMessage += OnDataMessage;
                 webSocketClient.OnErrorMessage += OnErrorMessage;
 
-                await webSocketClient.ConnectAsync(uri);
+                await webSocketClient.ConnectAsync(uri).ConfigureAwait(false);
 
                 if (!webSocketClient.Connected)
                     return false;
@@ -155,11 +155,11 @@ namespace SharpTwitch.EventSub
             }
 
             if (webSocketClient.Connected)
-                await DisconnectAsync();
+                await DisconnectAsync().ConfigureAwait(false);
             webSocketClient.Dispose();
 
             Reset();
-            return await ConnectAsync(uri);
+            return await ConnectAsync(uri).ConfigureAwait(false);
         }
 
         private async Task ConnectionCheckAsync()
