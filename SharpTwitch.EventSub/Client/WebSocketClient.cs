@@ -37,7 +37,7 @@ namespace SharpTwitch.EventSub.Client
                 await _webSocket.ConnectAsync(uri, CancellationToken.None);
 
 #pragma warning disable 4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(ProcessDataAsync);
+                Task.Run(ProcessDataAsync).ConfigureAwait(false);
 #pragma warning disable 4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
                 return Connected;
