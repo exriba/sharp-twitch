@@ -11,13 +11,14 @@ namespace SharpTwitch.Core
 {
     public class ApiCore : IApiCore
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         public JsonSerializerOptions? JsonSerializerOptions => new()
         {
             IncludeFields = true,
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = new SnakeCaseNamingPolicy()
         };
+
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public ApiCore(IHttpClientFactory httpClientFactory)
         {
@@ -29,7 +30,7 @@ namespace SharpTwitch.Core
             Guard.Against.NullOrEmpty(headers, nameof(headers));
 
             var uri = BuildUri(fragment, queryParams);
-            var client = CreateClient(headers);
+            using var client = CreateClient(headers);
             var responseMessage = await client.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
             return await HandleResponse<T>(responseMessage, cancellationToken);
@@ -40,7 +41,7 @@ namespace SharpTwitch.Core
             Guard.Against.NullOrEmpty(headers, nameof(headers));
             Guard.Against.Null(formUrlEncodedContent, nameof(formUrlEncodedContent));
 
-            var client = CreateClient(headers);
+            using var client = CreateClient(headers);
             var responseMessage = await client.PostAsync(fragment.ConvertToString(), formUrlEncodedContent, cancellationToken).ConfigureAwait(false);
 
             return await HandleResponse<T>(responseMessage, cancellationToken);
@@ -51,7 +52,7 @@ namespace SharpTwitch.Core
             Guard.Against.NullOrEmpty(headers, nameof(headers));
             Guard.Against.Null(stringContent, nameof(stringContent));
 
-            var client = CreateClient(headers);
+            using var client = CreateClient(headers);
             var responseMessage = await client.PostAsync(fragment.ConvertToString(), stringContent, cancellationToken).ConfigureAwait(false);
 
             return await HandleResponse<T>(responseMessage, cancellationToken);
@@ -62,7 +63,7 @@ namespace SharpTwitch.Core
             Guard.Against.NullOrEmpty(headers, nameof(headers));
 
             var uri = BuildUri(fragment, queryParams);
-            var client = CreateClient(headers);
+            using var client = CreateClient(headers);
             var responseMessage = await client.DeleteAsync(uri, cancellationToken).ConfigureAwait(false);
 
             await HandleResponse(responseMessage, cancellationToken);
