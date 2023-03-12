@@ -111,7 +111,10 @@ namespace SharpTwitch.EventSub
                 return true;
 
             _cancellationTokenSource.Cancel();
-            return await webSocketClient.DisconnectAsync().ConfigureAwait(false);
+            var disconnected = await webSocketClient.DisconnectAsync().ConfigureAwait(false);
+            webSocketClient.Dispose();
+            Reset();
+            return disconnected;
         }
 
         public async Task<bool> ReconnectAsync(Uri? uri = null)
@@ -157,7 +160,6 @@ namespace SharpTwitch.EventSub
             if (webSocketClient.Connected)
                 await DisconnectAsync().ConfigureAwait(false);
             webSocketClient.Dispose();
-
             Reset();
             return await ConnectAsync(uri).ConfigureAwait(false);
         }
