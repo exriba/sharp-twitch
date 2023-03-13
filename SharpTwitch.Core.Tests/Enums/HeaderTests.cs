@@ -22,6 +22,7 @@ namespace SharpTwitch.Core.Tests.Enums
         [InlineData(Header.AUTHORIZATION_BEARER, "Authorization")]
         [InlineData(Header.AUTHORIZATION_ACCESS_TOKEN, "Authorization")]
         [InlineData(Header.CONTENT_TYPE_FORM_URL_ENCODED, "Content-Type")]
+        [InlineData(Header.CONTENT_TYPE_APPLICATION_JSON, "Content-Type")]
         public void Header_Transform(Header header, string key)
         {
             var kvp = header.Transform(CONTENT);

@@ -59,15 +59,14 @@ namespace SharpTwitch.Helix.Subscriptions
         public async Task<HelixSubscriptionResponse<Subscription>> CreateEventSubSubscriptionAsync(string broadcasterId, string authCode, string sessionId, SubscriptionType subscriptionType, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(broadcasterId, nameof(broadcasterId));
-            Guard.Against.NullOrEmpty(sessionId, nameof(sessionId));
+            Guard.Against.NullOrWhiteSpace(sessionId, nameof(sessionId));
+            Guard.Against.NullOrWhiteSpace(authCode, nameof(authCode));
 
             var headers = new Dictionary<Header, string>
             {
+                { Header.AUTHORIZATION_BEARER, authCode },
                 { Header.CLIENT_ID, _coreSettings.ClientId },
             };
-
-            if (!string.IsNullOrEmpty(authCode))
-                headers.Add(Header.AUTHORIZATION_BEARER, authCode);
 
             var requestBody = new SubscriptionRequest
             {

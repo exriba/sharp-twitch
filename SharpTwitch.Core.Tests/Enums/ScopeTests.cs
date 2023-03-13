@@ -5,15 +5,15 @@ namespace SharpTwitch.Core.Tests.Enums
     public class ScopeTests
     {
         [Fact]
-        public void Scope()
+        public void Scope_ConvertToString()
         {
             var values = (Scope[])Enum.GetValues(typeof(Scope));
-            var scopes = values.Select(x => x.ConvertToString());
+            var enumValues = values.Select(x => x.ConvertToString());
 
             foreach (var value in values)
             {
-                var scope = value.ConvertToString();
-                Assert.Contains(scope, scopes);
+                var enumValue = value.ConvertToString();
+                Assert.Contains(enumValue, enumValues);
             }
         }
     }

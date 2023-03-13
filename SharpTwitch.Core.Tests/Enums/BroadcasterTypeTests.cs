@@ -2,12 +2,12 @@
 
 namespace SharpTwitch.Core.Tests.Enums
 {
-    public class UrlFragmentTests
+    public class BroadcasterTypeTests
     {
         [Fact]
-        public void UrlFragment_ConvertToString()
+        public void BroadcasterTypeTests_ConvertToString()
         {
-            var values = (UrlFragment[]) Enum.GetValues(typeof(UrlFragment));
+            var values = (BroadcasterType[])Enum.GetValues(typeof(BroadcasterType));
             var enumValues = values.Select(x => x.ConvertToString());
 
             foreach (var value in values)
