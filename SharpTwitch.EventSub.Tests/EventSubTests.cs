@@ -1,7 +1,6 @@
-using SharpTwitch.EventSub.Core.Handler;
-
 namespace SharpTwitch.EventSub.Tests
 {
+    // TODO: Add test cases for EventSub
     public class EventSubTests
     {
         [Fact]

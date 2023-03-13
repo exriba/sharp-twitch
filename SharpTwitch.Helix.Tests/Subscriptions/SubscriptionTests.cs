@@ -1,6 +1,5 @@
 ﻿using Moq;
 using SharpTwitch.Core.Enums;
-using SharpTwitch.Helix.Models.User;
 using SharpTwitch.Helix.Models;
 using SharpTwitch.Helix.Tests.Common;
 using SharpTwitch.Core.Models;

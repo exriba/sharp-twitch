@@ -16,7 +16,7 @@ namespace SharpTwitch.Helix.Tests
         }
 
         [Fact]
-        public void HelixApi_Create()
+        public void HelixApi_Constructor()
         {
             var users = _helixApi.Users;
             var customRewards = _helixApi.CustomRewards;

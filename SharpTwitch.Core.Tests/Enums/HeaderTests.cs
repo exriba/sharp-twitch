@@ -12,7 +12,7 @@ namespace SharpTwitch.Core.Tests.Enums
         [InlineData(Header.REDIRECT_URI)]
         [InlineData(Header.REFRESH_TOKEN)]
         [InlineData(Header.CLIENT_SECRET)]
-        public void Header_Transform_Throws(Header header)
+        public void Header_Transform_Throws_NotImplemented(Header header)
         {
             Assert.Throws<NotImplementedException>(() => header.Transform(CONTENT));
         }
