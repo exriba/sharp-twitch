@@ -19,7 +19,7 @@ namespace SharpTwitch.Auth.Tests.Helpers
         [InlineData(CLIENT_ID, EMPTY_STRING, null)]
         [InlineData(CLIENT_ID, WHITESPACE_STRING, null)]
         [InlineData(CLIENT_ID, URI, null)]
-        public void GenerateAuthorizationUrl_ShouldHandleInvalidArgs(string clientId, string redirectUri, IEnumerable<Scope> scopes)
+        public void AuthUtils_Throws_InvalidArgs(string clientId, string redirectUri, IEnumerable<Scope> scopes)
         {
             var forceVerify = false;
             var state = Guid.NewGuid().ToString();
@@ -28,7 +28,7 @@ namespace SharpTwitch.Auth.Tests.Helpers
         }
 
         [Fact]
-        public void GenerateAuthorizationUrl_ShouldReturnTwitchFormattedAuthenticationUrl()
+        public void AuthUtils_GenerateAuthorizationUrl()
         {
             var state = Guid.NewGuid().ToString();
             var scopes = new Scope[] { Scope.ANALYTICS_READ_EXTENSIONS }.ToList();

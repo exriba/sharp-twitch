@@ -16,7 +16,7 @@ namespace SharpTwitch.Tests
         }
 
         [Fact]
-        public void TwitchAPI_Create()
+        public void TwitchAPI_Constructor()
         {
             var auth = _twitchAPI.AuthApi;
             var helix = _twitchAPI.HelixApi;

@@ -5,7 +5,7 @@ namespace SharpTwitch.Core.Tests.Exceptions
 {
     public class UnauthorizedRequestExceptionTests
     {
-        public void UnauthorizedRequestException_Created()
+        public void UnauthorizedRequestException_Constructor()
         {
             var message = "Unauthorized";
             var unauthorizedRequestException = new UnauthorizedRequestException(message);
