@@ -8,6 +8,10 @@ namespace SharpTwitch.Auth.Tests
 {
     public class AuthApiTests
     {
+        private const string EMPTY_STRING = "";
+        private const string WHITESPACE_STRING = " ";
+        private const string AUTH_CODE = "authCode";
+
         private readonly AuthApi _authApi;
         private readonly Mock<IApiCore> _mockApiCore;
         private readonly Mock<ICoreSettings> _mockCoreSettings;
@@ -23,9 +27,9 @@ namespace SharpTwitch.Auth.Tests
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
         [InlineData(null)]
+        [InlineData(EMPTY_STRING)]
+        [InlineData(WHITESPACE_STRING)]
         public void AuthApi_GetAccessTokenFromCodeAsync_Throws_InvalidArgs(string code)
         {
             Assert.ThrowsAnyAsync<ArgumentException>(async () => await _authApi.GetAccessTokenFromCodeAsync(code, CancellationToken.None));
@@ -43,15 +47,15 @@ namespace SharpTwitch.Auth.Tests
                     It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(tokenResponse));
 
-            var data = await _authApi.GetAccessTokenFromCodeAsync("code", CancellationToken.None);
+            var data = await _authApi.GetAccessTokenFromCodeAsync(AUTH_CODE, CancellationToken.None);
 
             Assert.Equal(tokenResponse, data);
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
         [InlineData(null)]
+        [InlineData(EMPTY_STRING)]
+        [InlineData(WHITESPACE_STRING)]
         public void AuthApi_RefreshAccessTokenAsync_Throws_InvalidArgs(string token)
         {
             Assert.ThrowsAnyAsync<ArgumentException>(async () => await _authApi.RefreshAccessTokenAsync(token, CancellationToken.None));
@@ -69,15 +73,15 @@ namespace SharpTwitch.Auth.Tests
                     It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(tokenResponse));
 
-            var data = await _authApi.RefreshAccessTokenAsync("token", CancellationToken.None);
+            var data = await _authApi.RefreshAccessTokenAsync(AUTH_CODE, CancellationToken.None);
 
             Assert.Equal(tokenResponse, data);
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData(" ")]
         [InlineData(null)]
+        [InlineData(EMPTY_STRING)]
+        [InlineData(WHITESPACE_STRING)]
         public void AuthApi_ValidateAccessTokenAsync_Throws_InvalidArgs(string token)
         {
             Assert.ThrowsAnyAsync<ArgumentException>(async () => await _authApi.ValidateAccessTokenAsync(token, CancellationToken.None));
@@ -95,7 +99,7 @@ namespace SharpTwitch.Auth.Tests
                     It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(tokenResponse));
 
-            var data = await _authApi.ValidateAccessTokenAsync("token", CancellationToken.None);
+            var data = await _authApi.ValidateAccessTokenAsync(AUTH_CODE, CancellationToken.None);
 
             Assert.Equal(tokenResponse, data);
         }

@@ -5,15 +5,15 @@ namespace SharpTwitch.Core.Tests.Enums
     public class QueryParameterTests
     {
         [Fact]
-        public void QueryParameter()
+        public void QueryParameter_ConvertToString()
         {
             var values = (QueryParameter[])Enum.GetValues(typeof(QueryParameter));
-            var queryParameters = values.Select(x => x.ConvertToString());
+            var enumValues = values.Select(x => x.ConvertToString());
 
             foreach (var value in values)
             {
-                var queryParameter = value.ConvertToString();
-                Assert.Contains(queryParameter, queryParameters);
+                var enumValue = value.ConvertToString();
+                Assert.Contains(enumValue, enumValues);
             }
         }
     }
