@@ -1,5 +1,8 @@
 ﻿namespace SharpTwitch.Core.Enums
 {
+    /// <summary>
+    /// Twitch EventSub Subscription Status.
+    /// </summary>
     public enum SubscriptionStatus
     {
         /// <summary>
@@ -54,6 +57,12 @@
 
     public static class SubscriptionStatusExtensions
     {
+        /// <summary>
+        /// Converts a subscription status into a string.
+        /// </summary>
+        /// <param name="subscriptionStatus">subscription status</param>
+        /// <returns>The string value of the subscription status</returns>
+        /// <exception cref="ArgumentException">If subscription status is invalid</exception>
         public static string ConvertToString(this SubscriptionStatus subscriptionStatus)
         {
             return subscriptionStatus switch

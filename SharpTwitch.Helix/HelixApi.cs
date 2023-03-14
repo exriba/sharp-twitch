@@ -3,6 +3,9 @@ using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch.Helix
 {
+    /// <summary>
+    /// Wrapper for Twitch Helix <see href="https://dev.twitch.tv/docs/api/reference/">Endpoints</see>
+    /// </summary>
     public sealed class HelixApi
     {
         public readonly Users.Users Users;

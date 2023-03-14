@@ -1,5 +1,8 @@
 ﻿namespace SharpTwitch.Core.Enums
 {
+    /// <summary>
+    /// Twitch EventSub <see href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/">Subscription Types</see>
+    /// </summary>
     public enum SubscriptionType
     {
         USER_UPDATE,
@@ -13,6 +16,12 @@
 
     public static class SubscriptionTypeExtensions
     {
+        /// <summary>
+        /// Converts a subscription type into a string.
+        /// </summary>
+        /// <param name="subscriptionType">subscription type</param>
+        /// <returns>The string value of the subscription type</returns>
+        /// <exception cref="ArgumentException">If subscription type is invalid</exception>
         public static string ConvertToString(this SubscriptionType subscriptionType)
         {
             return subscriptionType switch

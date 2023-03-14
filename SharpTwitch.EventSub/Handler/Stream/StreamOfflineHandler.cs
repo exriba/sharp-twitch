@@ -7,20 +7,23 @@ using SharpTwitch.EventSub.Core.EventArgs.Stream;
 
 namespace SharpTwitch.EventSub.Handler.Stream
 {
+    /// <summary>
+    /// Stream Offline Notification Handler.
+    /// </summary>
     internal class StreamOfflineHandler : INotificationHandler
     {
+        /// <inheritdoc/>
         public SubscriptionType SubscriptionType => SubscriptionType.STREAM_OFFLINE;
 
-        public void Handle(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
+        /// <inheritdoc/>
+        public void Raise(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
         {
-            var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<StreamOffline>>>(jsonSerializerOptions);
-
-            if (notification is null)
-                throw new ArgumentException("Invalid Json string.");
-
             try
             {
-                eventSubBase.RaiseEvent(SubscriptionType, new StreamOfflineArgs(notification));
+                var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<StreamOffline>>>(jsonSerializerOptions);
+
+                if (notification is not null)
+                    eventSubBase.RaiseEvent(SubscriptionType, new StreamOfflineArgs(notification));
             }
             catch (Exception ex)
             {

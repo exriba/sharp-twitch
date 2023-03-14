@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace SharpTwitch.Helix.Models.User
 {
+    /// <summary>
+    /// Twitch <see href="https://dev.twitch.tv/docs/api/reference/#get-users">User</see>.
+    /// </summary>
     public class User
     {
         public string Id { get; set; } = string.Empty;

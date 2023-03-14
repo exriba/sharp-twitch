@@ -9,8 +9,12 @@ using SharpTwitch.Core.Models.Response;
 
 namespace SharpTwitch.Core
 {
+    /// <summary>
+    /// Default implementation of IApiCore.
+    /// </summary>
     public class ApiCore : IApiCore
     {
+        /// <inheritdoc/>
         public JsonSerializerOptions? JsonSerializerOptions => new()
         {
             IncludeFields = true,
@@ -25,6 +29,9 @@ namespace SharpTwitch.Core
             _httpClientFactory = httpClientFactory;
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If headers is null</exception>
+        /// <exception cref="ArgumentException">If headers is empty</exception>
         public async Task<T> GetAsync<T>(UrlFragment fragment, IDictionary<Header, string> headers, IEnumerable<KeyValuePair<QueryParameter, string>>? queryParams, CancellationToken cancellationToken) where T : IResponse
         {
             Guard.Against.NullOrEmpty(headers, nameof(headers));
@@ -36,6 +43,9 @@ namespace SharpTwitch.Core
             return await HandleResponse<T>(responseMessage, cancellationToken);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If headers or formUrlEncodedContent is null</exception>
+        /// <exception cref="ArgumentException">If headers is empty</exception>
         public async Task<T> PostAsync<T>(UrlFragment fragment, IDictionary<Header, string> headers, FormUrlEncodedContent formUrlEncodedContent, CancellationToken cancellationToken) where T : IResponse
         {
             Guard.Against.NullOrEmpty(headers, nameof(headers));
@@ -47,6 +57,9 @@ namespace SharpTwitch.Core
             return await HandleResponse<T>(responseMessage, cancellationToken);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If headers or stringContent is null</exception>
+        /// <exception cref="ArgumentException">If headers is empty</exception>
         public async Task<T> PostAsync<T>(UrlFragment fragment, IDictionary<Header, string> headers, StringContent stringContent, CancellationToken cancellationToken) where T : IResponse
         {
             Guard.Against.NullOrEmpty(headers, nameof(headers));
@@ -58,6 +71,9 @@ namespace SharpTwitch.Core
             return await HandleResponse<T>(responseMessage, cancellationToken);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If headers is null</exception>
+        /// <exception cref="ArgumentException">If headers is empty</exception>
         public async Task DeleteAsync(UrlFragment fragment, IDictionary<Header, string> headers, IEnumerable<KeyValuePair<QueryParameter, string>>? queryParams, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrEmpty(headers, nameof(headers));

@@ -7,20 +7,23 @@ using System.Text.Json;
 
 namespace SharpTwitch.EventSub.Handler.User
 {
-    class UserUpdateHandler : INotificationHandler
+    /// <summary>
+    /// User Update Notification Handler.
+    /// </summary>
+    internal class UserUpdateHandler : INotificationHandler
     {
+        /// <inheritdoc/>
         public SubscriptionType SubscriptionType => SubscriptionType.USER_UPDATE;
 
-        public void Handle(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
+        /// <inheritdoc/>
+        public void Raise(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
         {
-            var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<UserUpdate>>>(jsonSerializerOptions);
-
-            if (notification is null)
-                throw new ArgumentException("Invalid Json string.");
-
             try
             {
-                eventSubBase.RaiseEvent(SubscriptionType, new UserUpdateArgs(notification));
+                var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<UserUpdate>>>(jsonSerializerOptions);
+
+                if (notification is not null)
+                    eventSubBase.RaiseEvent(SubscriptionType, new UserUpdateArgs(notification));
             }
             catch (Exception ex)
             {

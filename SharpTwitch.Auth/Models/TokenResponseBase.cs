@@ -2,6 +2,9 @@
 
 namespace SharpTwitch.Auth.Models
 {
+    /// <summary>
+    /// Token Model Base.
+    /// </summary>
     public abstract class TokenResponseBase : IResponse
     {
         public string AccessToken { get; set; } = string.Empty;

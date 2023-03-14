@@ -7,20 +7,23 @@ using System.Text.Json;
 
 namespace SharpTwitch.EventSub.Handler.Channel.Redemption
 {
-    public class CustomRewardRedemptionAddHandler : INotificationHandler
+    /// <summary>
+    /// Custom Reward Redemption Notification Handler.
+    /// </summary>
+    internal class CustomRewardRedemptionAddHandler : INotificationHandler
     {
+        /// <inheritdoc/>
         public SubscriptionType SubscriptionType => SubscriptionType.CHANNEL_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD;
 
-        public void Handle(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
+        /// <inheritdoc/>
+        public void Raise(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
         {
-            var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<ChannelPointsCustomRewardRedemption>>>(jsonSerializerOptions);
-
-            if (notification is null)
-                throw new ArgumentException("Invalid Json string.");
-
             try
             {
-                eventSubBase.RaiseEvent(SubscriptionType, new CustomRewardRedemptionArgs(notification));
+                var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<ChannelPointsCustomRewardRedemption>>>(jsonSerializerOptions);
+
+                if (notification is not null)
+                    eventSubBase.RaiseEvent(SubscriptionType, new CustomRewardRedemptionArgs(notification));
             }
             catch (Exception ex)
             {

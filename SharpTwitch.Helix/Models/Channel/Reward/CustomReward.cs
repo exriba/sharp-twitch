@@ -2,6 +2,9 @@
 
 namespace SharpTwitch.Helix.Models.Channel.Reward
 {
+    /// <summary>
+    /// Twitch <see href="https://dev.twitch.tv/docs/api/reference/#get-custom-reward">Custom Reward</see>
+    /// </summary>
     public class CustomReward
     {
         public string Id { get; set; } = string.Empty;

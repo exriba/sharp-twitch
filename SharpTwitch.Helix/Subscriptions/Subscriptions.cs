@@ -9,6 +9,9 @@ using SharpTwitch.Core.Models;
 
 namespace SharpTwitch.Helix.Subscriptions
 {
+    /// <summary>
+    /// Default implementation of ISubscriptions.
+    /// </summary>
     public class Subscriptions : ISubscriptions
     {
         private readonly IApiCore _apiCore;
@@ -20,6 +23,9 @@ namespace SharpTwitch.Helix.Subscriptions
             _coreSettings = coreSettings;
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If broadcasterId, authorization code or subscriptionId is null</exception>
+        /// <exception cref="ArgumentException">If broadcasterId, authorization code or subscriptionId is empty or whitespace string</exception>
         public async Task DeleteEventSubSubscriptionAsync(string broadcasterId, string authCode, string subscriptionId, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(subscriptionId, nameof(subscriptionId));
@@ -31,7 +37,6 @@ namespace SharpTwitch.Helix.Subscriptions
                 { Header.AUTHORIZATION_BEARER, authCode },
                 { Header.CLIENT_ID, _coreSettings.ClientId },
             };
-
             var queryParams = new Dictionary<QueryParameter, string>
             {
                 { QueryParameter.ID, subscriptionId },
@@ -41,6 +46,9 @@ namespace SharpTwitch.Helix.Subscriptions
                           .ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If broadcasterId or authorization code is null</exception>
+        /// <exception cref="ArgumentException">If broadcasterId or authorization code is empty or whitespace string</exception>
         public async Task<HelixSubscriptionResponse<Subscription>> GetEventSubSubscriptionAsync(string broadcasterId, string authCode, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(broadcasterId, nameof(broadcasterId));
@@ -56,6 +64,9 @@ namespace SharpTwitch.Helix.Subscriptions
                                  .ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If broadcasterId, authorization code or sessionId is null</exception>
+        /// <exception cref="ArgumentException">If broadcasterId, authorization code or sessionId is empty or whitespace string</exception>
         public async Task<HelixSubscriptionResponse<Subscription>> CreateEventSubSubscriptionAsync(string broadcasterId, string authCode, string sessionId, SubscriptionType subscriptionType, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(broadcasterId, nameof(broadcasterId));
@@ -67,7 +78,6 @@ namespace SharpTwitch.Helix.Subscriptions
                 { Header.AUTHORIZATION_BEARER, authCode },
                 { Header.CLIENT_ID, _coreSettings.ClientId },
             };
-
             var requestBody = new SubscriptionRequest
             {
                 Type = subscriptionType.ConvertToString(),

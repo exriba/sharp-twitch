@@ -6,6 +6,9 @@ using SharpTwitch.Core.Enums;
 
 namespace SharpTwitch.Auth
 {
+    /// <summary>
+    /// Default implementation of IAuthApi.
+    /// </summary>
     public sealed class AuthApi : IAuthApi
     {
         private readonly IApiCore _apiCore;
@@ -17,6 +20,9 @@ namespace SharpTwitch.Auth
             _coreSettings = coreSettings;
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If the authorization code is null</exception>
+        /// <exception cref="ArgumentException">If the authorization code is an empty or whitespace string</exception>
         public async Task<AccessTokenResponse> GetAccessTokenFromCodeAsync(string authCode, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(authCode, nameof(authCode));
@@ -25,7 +31,6 @@ namespace SharpTwitch.Auth
             {
                 { Header.CONTENT_TYPE_FORM_URL_ENCODED, string.Empty },
             };
-
             var content = new Dictionary<Header, string>
             {
                 { Header.CODE, authCode },
@@ -42,6 +47,9 @@ namespace SharpTwitch.Auth
                                  .ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If the refresh token is null</exception>
+        /// <exception cref="ArgumentException">If the refresh token is an empty or whitespace string</exception>
         public async Task<RefreshTokenResponse> RefreshAccessTokenAsync(string refreshToken, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(refreshToken, nameof(refreshToken));
@@ -50,7 +58,6 @@ namespace SharpTwitch.Auth
             {
                 { Header.CONTENT_TYPE_FORM_URL_ENCODED, string.Empty },
             };
-
             var content = new Dictionary<Header, string>
             {
                 { Header.CLIENT_ID, _coreSettings.ClientId },
@@ -66,6 +73,9 @@ namespace SharpTwitch.Auth
                                  .ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If the access token is null</exception>
+        /// <exception cref="ArgumentException">If the access token is an empty or whitespace string</exception>
         public async Task<ValidateTokenResponse> ValidateAccessTokenAsync(string accessToken, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(accessToken, nameof(accessToken));

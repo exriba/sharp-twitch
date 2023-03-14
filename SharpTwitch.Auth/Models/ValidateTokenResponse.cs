@@ -2,6 +2,10 @@
 
 namespace SharpTwitch.Auth.Models
 {
+    /// <summary>
+    /// Validate Token Model.
+    /// </summary>
+    /// <see/>https://dev.twitch.tv/docs/authentication/validate-tokens/#how-to-validate-a-token</see>
     public class ValidateTokenResponse : IResponse
     {
         public string ClientId { get; set; } = string.Empty;

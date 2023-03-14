@@ -5,6 +5,9 @@ using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch
 {
+    /// <summary>
+    /// Wrapper for AuthApi and HelixApi components.
+    /// </summary>
     public sealed class TwitchAPI
     {
         public readonly AuthApi AuthApi;
