@@ -8,6 +8,7 @@
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageOutputPath>$(SolutionDir)\packages\$(MSBuildProjectName.toLower())</PackageOutputPath>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
