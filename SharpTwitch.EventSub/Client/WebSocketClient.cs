@@ -6,6 +6,9 @@ using SharpTwitch.EventSub.Core.Models.Client;
 
 namespace SharpTwitch.EventSub.Client
 {
+    /// <summary>
+    /// WebSocketClient.
+    /// </summary>
     public class WebSocketClient : IDisposable
     {
         #region Events

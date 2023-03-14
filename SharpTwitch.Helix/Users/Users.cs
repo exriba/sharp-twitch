@@ -7,6 +7,9 @@ using SharpTwitch.Core.Enums;
 
 namespace SharpTwitch.Helix.Users
 {
+    /// <summary>
+    /// Default implementation of IUsers.
+    /// </summary>
     public class Users : IUsers
     {
         private readonly IApiCore _apiCore;
@@ -18,6 +21,9 @@ namespace SharpTwitch.Helix.Users
             _coreSettings = coreSettings;
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If the authorization code is null</exception>
+        /// <exception cref="ArgumentException">If the authorization code is empty or whitespace string</exception>
         public async Task<IEnumerable<User>> GetUsersAsync(string[] userIds, string authCode, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(authCode, nameof(authCode));

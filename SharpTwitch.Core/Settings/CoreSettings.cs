@@ -2,6 +2,9 @@
 
 namespace SharpTwitch.Core.Settings
 {
+    /// <summary>
+    /// Default implementation of ICoreSettings. (Configuration Class)
+    /// </summary>
     public class CoreSettings : ICoreSettings
     {
         public const string Key = "CoreSettings";

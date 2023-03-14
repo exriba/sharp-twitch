@@ -1,5 +1,8 @@
 ﻿namespace SharpTwitch.Core.Enums
 {
+    /// <summary>
+    /// Query Parameters
+    /// </summary>
     public enum QueryParameter
     {
         ID,
@@ -9,6 +12,12 @@
 
     public static class QueryParameterExtensions
     {
+        /// <summary>
+        /// Converts a query parameter into a string.
+        /// </summary>
+        /// <param name="queryParameter">query parameter</param>
+        /// <returns>The string value of the query parameter</returns>
+        /// <exception cref="ArgumentException">If query parameter is invalid</exception>
         public static string ConvertToString(this QueryParameter queryParameter)
         {
             return queryParameter switch

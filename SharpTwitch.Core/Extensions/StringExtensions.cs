@@ -1,7 +1,15 @@
 ﻿namespace SharpTwitch.Core.Extensions
 {
+    /// <summary>
+    /// Utility class for string extensions.
+    /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Converts a string to snake_case.
+        /// </summary>
+        /// <param name="str">the string</param>
+        /// <returns>The snake_case form of the string</returns>
         public static string ToSnakeCase(this string str)
         {
             if (string.IsNullOrWhiteSpace(str))

@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace SharpTwitch.Core.Models
 {
+    /// <summary>
+    /// Twitch EventSub <see href="https://dev.twitch.tv/docs/api/reference/#get-eventsub-subscriptions">Subscription</see>
+    /// </summary>
     public class Subscription
     {
         public string Id { get; set; } = string.Empty;

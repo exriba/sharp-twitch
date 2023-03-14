@@ -7,20 +7,23 @@ using System.Text.Json;
 
 namespace SharpTwitch.EventSub.Handler.Stream
 {
+    /// <summary>
+    /// Stream Online Notification Handler.
+    /// </summary>
     internal class StreamOnlineHandler : INotificationHandler
     {
+        /// <inheritdoc/>
         public SubscriptionType SubscriptionType => SubscriptionType.STREAM_ONLINE;
 
-        public void Handle(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
+        /// <inheritdoc/>
+        public void Raise(EventSubBase eventSubBase, JsonDocument jsonDocument, JsonSerializerOptions? jsonSerializerOptions)
         {
-            var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<StreamOnline>>>(jsonSerializerOptions);
-
-            if (notification is null)
-                throw new ArgumentException("Invalid Json string.");
-
             try
             {
-                eventSubBase.RaiseEvent(SubscriptionType, new StreamOnlineArgs(notification));
+                var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<StreamOnline>>>(jsonSerializerOptions);
+                
+                if (notification is not null)
+                    eventSubBase.RaiseEvent(SubscriptionType, new StreamOnlineArgs(notification));
             }
             catch (Exception ex)
             {

@@ -3,8 +3,16 @@ using SharpTwitch.EventSub.Core.Handler;
 
 namespace SharpTwitch.EventSub
 {
+    /// <summary>
+    /// SharpTwitch.EventSub Configuration.
+    /// </summary>
     public static class Configuration
     {
+        /// <summary>
+        /// Registers EventSub into the DI container. <see cref="SharpTwitch.EventSub.EventSub"/>
+        /// </summary>
+        /// <param name="services">service collection</param>
+        /// <returns>The service collection</returns>
         public static IServiceCollection AddTwitchEventSub(this IServiceCollection services)
         {
             // Add services to the container.

@@ -1,5 +1,9 @@
 ﻿namespace SharpTwitch.Core.Enums
 {
+    /// <summary>
+    /// Twitch scopes.
+    /// </summary>
+    /// <see>https://dev.twitch.tv/docs/authentication/scopes/</see>
     public enum Scope
     {
         ANALYTICS_READ_EXTENSIONS,
@@ -57,11 +61,11 @@
     public static class ScopeExtensions
     {
         /// <summary>
-        /// Converts a SharpTwitch scope to a Twitch authentication scope.
+        /// Converts a scope into a string.
         /// </summary>
-        /// <param name="scope">Scope value</param>
-        /// <see cref="https://dev.twitch.tv/docs/authentication/scopes"/>
-        /// <returns>Twitch Scope</returns>
+        /// <param name="scope">scope</param>
+        /// <returns>The string value of the scope</returns>
+        /// <exception cref="ArgumentException">If scope is invalid</exception>
         public static string ConvertToString(this Scope scope)
         {
             return scope switch

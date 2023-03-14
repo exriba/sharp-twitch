@@ -7,6 +7,9 @@ using SharpTwitch.Helix.Models.Channel.Reward;
 
 namespace SharpTwitch.Helix.Rewards
 {
+    /// <summary>
+    /// Default implementation of ICustomRewards.
+    /// </summary>
     public class CustomRewards : ICustomRewards
     {
         private readonly IApiCore _apiCore;
@@ -18,6 +21,9 @@ namespace SharpTwitch.Helix.Rewards
             _coreSettings = coreSettings;
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="ArgumentNullException">If broadcasterId or authorization code is null</exception>
+        /// <exception cref="ArgumentException">If broadcasterId or authorization code is empty or whitespace string</exception>
         public async Task<IEnumerable<CustomReward>> GetCustomRewardsAsync(string broadcasterId, string authCode, CancellationToken cancellationToken)
         {
             Guard.Against.NullOrWhiteSpace(broadcasterId, nameof(broadcasterId));
@@ -28,7 +34,6 @@ namespace SharpTwitch.Helix.Rewards
                 { Header.AUTHORIZATION_BEARER, authCode },
                 { Header.CLIENT_ID, _coreSettings.ClientId },
             };
-
             var queryParams = new Dictionary<QueryParameter, string>
             {
                 { QueryParameter.BROADCASTER_ID, broadcasterId },

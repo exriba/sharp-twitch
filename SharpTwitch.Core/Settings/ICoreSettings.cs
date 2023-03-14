@@ -2,6 +2,9 @@
 
 namespace SharpTwitch.Core.Settings
 {
+    /// <summary>
+    /// Defines the core api settings.
+    /// </summary>
     public interface ICoreSettings
     {
         string Secret { get; set; }

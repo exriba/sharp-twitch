@@ -16,6 +16,9 @@ using SharpTwitch.EventSub.Core.EventArgs.Channel.Reward;
 
 namespace SharpTwitch.EventSub
 {
+    /// <summary>
+    /// Twitch EventSub.
+    /// </summary>
     public class EventSub : EventSubBase
     {
         #region Constants
@@ -24,7 +27,7 @@ namespace SharpTwitch.EventSub
         private const string TWITCH_EVENTSUB_URL = "wss://eventsub-beta.wss.twitch.tv/ws";
         #endregion
 
-        #region Events
+        #region EventHandlers
         public event EventHandler<StreamOnlineArgs>? OnStreamOnline;
         public event EventHandler<StreamOfflineArgs>? OnStreamOffline;
         public event EventHandler<UserUpdateArgs>? OnUserUpdate;
@@ -71,6 +74,9 @@ namespace SharpTwitch.EventSub
             ConfigureHandlers(notificationHandlers);
         }
 
+        /// <summary>
+        /// Resets Mutable fields.
+        /// </summary>
         private void Reset()
         {
             SessionId = string.Empty;
@@ -83,12 +89,21 @@ namespace SharpTwitch.EventSub
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
+        /// <summary>
+        /// Loads registered notification handlers.
+        /// </summary>
+        /// <param name="notificationHandlers">notification handlers</param>
         private void ConfigureHandlers(IEnumerable<INotificationHandler> notificationHandlers)
         {
             foreach (var handler in notificationHandlers)
                 _notificationHandlerMap.TryAdd(handler.SubscriptionType, handler);
         }
 
+        /// <summary>
+        /// Connects the websocket client to Twitch.
+        /// </summary>
+        /// <param name="uri">uri (Optional)</param>
+        /// <returns><see langword="true"/> if the websocket client connects successfully. Otherwise returns <see langword="false"/>.</returns>
         public async Task<bool> ConnectAsync(Uri? uri = null)
         {
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
@@ -105,6 +120,11 @@ namespace SharpTwitch.EventSub
             return true;
         }
 
+        /// <summary>
+        /// Disconnects the websocket client from Twitch.
+        /// </summary>
+        /// <param name="uri">uri</param>
+        /// <returns><see langword="true"/> if the websocket client disconnects successfully. Otherwise returns <see langword="false"/>.</returns>
         public async Task<bool> DisconnectAsync()
         {
             if (!webSocketClient.Connected)
@@ -117,6 +137,11 @@ namespace SharpTwitch.EventSub
             return disconnected;
         }
 
+        /// <summary>
+        /// Reconnects the websocket client to Twitch.
+        /// </summary>
+        /// <param name="uri">uri (Optional)</param>
+        /// <returns>true if the websocket client connects successfully. Otherwise returns false.</returns>
         public async Task<bool> ReconnectAsync(Uri? uri = null)
         {
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
@@ -187,11 +212,21 @@ namespace SharpTwitch.EventSub
             OnClientDisconnected?.Invoke(this, disconnectedMessage);
         }
 
+        /// <summary>
+        /// Invokes Error event handler.
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">error message arguments</param>
         private void OnErrorOcurred(object? sender, ErrorMessageArgs e)
         {
             OnErrorMessage?.Invoke(sender, e);
         }
 
+        /// <summary>
+        /// Invokes the appropiate handler depending on the message type.
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="e">event message args</param>
         private void OnDataMessage(object? sender, T e)
         {
             _lastReceived = DateTimeOffset.Now;
@@ -230,6 +265,10 @@ namespace SharpTwitch.EventSub
             }
         }
 
+        /// <summary>
+        /// Handles Twitch EventSub welcome message.
+        /// </summary>
+        /// <param name="jsonDocument">message</param>
         private void HandleWelcome(JsonDocument jsonDocument)
         {
             var data = jsonDocument.Deserialize<EventSubMessage<SessionPayload>>(_jsonSerializerOptions)!;
@@ -243,6 +282,10 @@ namespace SharpTwitch.EventSub
             _connectionStatus = ConnectionStatus.CONNECTED;
         }
 
+        /// <summary>
+        /// Handles TwitchEventSub reconnect message.
+        /// </summary>
+        /// <param name="jsonDocument"></param>
         private void HandleReconnect(JsonDocument jsonDocument)
         {
             var data = jsonDocument.Deserialize<EventSubMessage<SessionPayload>>(_jsonSerializerOptions)!;
@@ -252,20 +295,32 @@ namespace SharpTwitch.EventSub
             Task.Run(async () => await ReconnectAsync(new Uri(data.Payload.Session.ReconnectUrl!)));
         }
 
+        /// <summary>
+        /// Handles Twitch EventSub keep alive message.
+        /// </summary>
+        /// <param name="jsonDocument">message</param>
         private void HandleKeepAlive(JsonDocument jsonDocument)
         {
             _logger?.LogDebug("{message}", jsonDocument);
         }
 
+        /// <summary>
+        /// Handles Twitch EventSub notification message.
+        /// </summary>
+        /// <param name="jsonDocument">message</param>
         private void HandleNotification(JsonDocument jsonDocument)
         {
             var metadataDocument = jsonDocument.RootElement.GetProperty(METADATA);
             var metadata = metadataDocument.Deserialize<Metadata>(_jsonSerializerOptions);
 
             if (metadata is not null && _notificationHandlerMap.TryGetValue(metadata.MetadataSubscriptionType, out var handler))
-                handler.Handle(this, jsonDocument, _jsonSerializerOptions);
+                handler.Raise(this, jsonDocument, _jsonSerializerOptions);
         }
 
+        /// <summary>
+        /// Handles TwitchEventSub revocation message.
+        /// </summary>
+        /// <param name="jsonDocument">message</param>
         private void HandleRevocation(JsonDocument jsonDocument)
         {
             var data = jsonDocument.Deserialize<EventSubMessage<SubscriptionPayload>>(_jsonSerializerOptions)!;
@@ -282,6 +337,7 @@ namespace SharpTwitch.EventSub
             OnRevocation?.Invoke(this, revocationArgs);
         }
 
+        /// <inheritdoc/>
         internal override void RaiseEvent(SubscriptionType subscriptionType, System.EventArgs args) 
         {
             switch (subscriptionType)
@@ -312,6 +368,7 @@ namespace SharpTwitch.EventSub
             }
         }
 
+        /// <inheritdoc/>
         internal override void RaiseErrorEvent(SubscriptionType subscriptionType, Exception exception)
         {
             var errorMessage = new ErrorMessageArgs

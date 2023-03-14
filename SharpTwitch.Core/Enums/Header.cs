@@ -1,5 +1,8 @@
 ﻿namespace SharpTwitch.Core.Enums
 {
+    /// <summary>
+    /// Headers.
+    /// </summary>
     public enum Header
     {
         CODE,
@@ -16,6 +19,12 @@
 
     public static class HeaderExtensions
     {
+        /// <summary>
+        /// Converts a header into a string.
+        /// </summary>
+        /// <param name="header">header</param>
+        /// <returns>The string value of the header</returns>
+        /// <exception cref="ArgumentException">If header is invalid</exception>
         public static string ConvertToString(this Header header)
         {
             return header switch
@@ -34,6 +43,13 @@
             };
         }
 
+        /// <summary>
+        /// Converts a header into proper http header key value pairs.
+        /// </summary>
+        /// <param name="header">header</param>
+        /// <param name="value">value</param>
+        /// <returns>The http header key value pairs</returns>
+        /// <exception cref="NotImplementedException">If header transformation is not implemented/exception>
         public static KeyValuePair<string, string> Transform(this Header header, string value)
         {
             return header switch
