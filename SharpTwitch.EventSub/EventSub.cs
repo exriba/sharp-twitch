@@ -123,7 +123,6 @@ namespace SharpTwitch.EventSub
         /// <summary>
         /// Disconnects the websocket client from Twitch.
         /// </summary>
-        /// <param name="uri">uri</param>
         /// <returns><see langword="true"/> if the websocket client disconnects successfully. Otherwise returns <see langword="false"/>.</returns>
         public async Task<bool> DisconnectAsync()
         {
@@ -141,7 +140,7 @@ namespace SharpTwitch.EventSub
         /// Reconnects the websocket client to Twitch.
         /// </summary>
         /// <param name="uri">uri (Optional)</param>
-        /// <returns>true if the websocket client connects successfully. Otherwise returns false.</returns>
+        /// <returns><see langword="true"/> if the websocket client connects successfully. Otherwise returns <see langword="false"/>.</returns>
         public async Task<bool> ReconnectAsync(Uri? uri = null)
         {
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
