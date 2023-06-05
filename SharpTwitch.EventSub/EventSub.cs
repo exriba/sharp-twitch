@@ -24,7 +24,7 @@ namespace SharpTwitch.EventSub
         #region Constants
         private const string METADATA = "metadata";
         private const string MESSAGE_TYPE = "message_type";
-        private const string TWITCH_EVENTSUB_URL = "wss://eventsub-beta.wss.twitch.tv/ws";
+        private const string TWITCH_EVENTSUB_URL = "wss://eventsub.wss.twitch.tv/ws";
         #endregion
 
         #region EventHandlers
