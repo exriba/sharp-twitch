@@ -19,7 +19,7 @@ namespace SharpTwitch.EventSub
     /// <summary>
     /// Twitch EventSub.
     /// </summary>
-    public class EventSub : EventSubBase
+    public class EventSub : EventSubBase, IAsyncDisposable
     {
         #region Constants
         private const string METADATA = "metadata";
@@ -130,10 +130,7 @@ namespace SharpTwitch.EventSub
                 return true;
 
             _cancellationTokenSource.Cancel();
-            var disconnected = await webSocketClient.DisconnectAsync().ConfigureAwait(false);
-            webSocketClient.Dispose();
-            Reset();
-            return disconnected;
+            return await webSocketClient.DisconnectAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -165,10 +162,7 @@ namespace SharpTwitch.EventSub
                     {
                         var oldWebSocketClient = this.webSocketClient;
                         this.webSocketClient = webSocketClient;
-
-                        if (oldWebSocketClient.Connected)
-                            await oldWebSocketClient.DisconnectAsync();
-                        oldWebSocketClient.Dispose();
+                        await oldWebSocketClient.DisposeAsync();
 
                         return true;
                     }
@@ -181,11 +175,8 @@ namespace SharpTwitch.EventSub
                 return false;
             }
 
-            if (webSocketClient.Connected)
-                await DisconnectAsync().ConfigureAwait(false);
-            webSocketClient.Dispose();
-            Reset();
-            return await ConnectAsync(uri).ConfigureAwait(false);
+            await DisposeAsync().ConfigureAwait(false);
+            return await ConnectAsync(uri);
         }
 
         private async Task ConnectionCheckAsync()
@@ -377,6 +368,19 @@ namespace SharpTwitch.EventSub
             };
 
             OnErrorMessage?.Invoke(this, errorMessage);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsyncCore().ConfigureAwait(false);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual async ValueTask DisposeAsyncCore()
+        {
+            await webSocketClient.DisposeAsync();
+            Reset();
         }
     }
 }

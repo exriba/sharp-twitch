@@ -9,7 +9,7 @@ namespace SharpTwitch.EventSub.Client
     /// <summary>
     /// WebSocketClient.
     /// </summary>
-    public class WebSocketClient : IDisposable
+    public class WebSocketClient : IAsyncDisposable
     {
         #region Events
         internal event EventHandler<T>? OnDataMessage;
@@ -135,10 +135,19 @@ namespace SharpTwitch.EventSub.Client
             };
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            _webSocket.Dispose();
+            await DisposeAsyncCore().ConfigureAwait(false);
+
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual async ValueTask DisposeAsyncCore()
+        {
+            if (Connected)
+                await DisconnectAsync().ConfigureAwait(false);
+            
+            _webSocket.Dispose();
         }
     }
 }
