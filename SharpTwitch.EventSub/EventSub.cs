@@ -379,7 +379,7 @@ namespace SharpTwitch.EventSub
 
         protected virtual async ValueTask DisposeAsyncCore()
         {
-            await webSocketClient.DisposeAsync();
+            await webSocketClient.DisposeAsync().ConfigureAwait(false);
             Reset();
         }
     }
