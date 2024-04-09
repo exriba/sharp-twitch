@@ -135,11 +135,10 @@ namespace SharpTwitch.EventSub.Client
             };
         }
 
+        /// <inheritdoc/>
         public async ValueTask DisposeAsync()
         {
             await DisposeAsyncCore().ConfigureAwait(false);
-
-            GC.SuppressFinalize(this);
         }
 
         protected virtual async ValueTask DisposeAsyncCore()
