@@ -370,11 +370,10 @@ namespace SharpTwitch.EventSub
             OnErrorMessage?.Invoke(this, errorMessage);
         }
 
+        /// <inheritdoc/>
         public async ValueTask DisposeAsync()
         {
             await DisposeAsyncCore().ConfigureAwait(false);
-
-            GC.SuppressFinalize(this);
         }
 
         protected virtual async ValueTask DisposeAsyncCore()
