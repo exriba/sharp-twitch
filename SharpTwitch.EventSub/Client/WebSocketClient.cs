@@ -17,12 +17,12 @@ namespace SharpTwitch.EventSub.Client
         #endregion
 
         private readonly ClientWebSocket _webSocket;
-        private CancellationTokenSource _source;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public WebSocketClient()
         {
             _webSocket = new ClientWebSocket();
-            _source = new CancellationTokenSource();
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         public bool Connected => _webSocket.State is WebSocketState.Open;
@@ -30,47 +30,44 @@ namespace SharpTwitch.EventSub.Client
         public bool Faulted => _webSocket.CloseStatus is not WebSocketCloseStatus.Empty &&
             _webSocket.CloseStatus is not WebSocketCloseStatus.NormalClosure;
 
-        internal async Task<bool> ConnectAsync(Uri uri, CancellationToken cancellationToken = default)
+        internal async Task ConnectAsync(Uri uri, CancellationToken cancellationToken = default)
         {
             Guard.Against.Null(uri, nameof(uri));
-            _source = _source.IsCancellationRequested ? new() : _source;
-            var token = _source.Token;
+            _cancellationTokenSource = _cancellationTokenSource.IsCancellationRequested ? new() : _cancellationTokenSource;
+            var token = _cancellationTokenSource.Token;
+
+            if (Connected)
+                return;
 
             try
             {
-                if (Connected)
-                    return true;
-
                 await _webSocket.ConnectAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 _ = Task.Run(() => ProcessDataAsync(token), token);
-
-                return Connected;
             }
             catch (Exception ex)
             {
                 var errorMessage = CreateErrorMessage("An error ocurred while connecting to the server.", ex);
                 OnErrorMessage?.Invoke(this, errorMessage);
-                return false;
             }
         }
 
-        internal async Task<bool> DisconnectAsync(CancellationToken cancellationToken = default)
+        internal async Task DisconnectAsync(CancellationToken cancellationToken = default)
         {
+            if (!Connected)
+                return;
+
+            _cancellationTokenSource.Cancel();
+
             try
             {
-                if (Connected)
+                if (_webSocket.State != WebSocketState.Aborted)
                     await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnecting websocket client.", cancellationToken).ConfigureAwait(false);
-
-                _source.Cancel();
-                _source.Dispose();
-                return true;
             }
             catch (Exception ex)
             {
                 var errorMessage = CreateErrorMessage("An error ocurred while disconnecting from the server.", ex);
                 OnErrorMessage?.Invoke(this, errorMessage);
-                return false;
             }
         }
 
@@ -112,6 +109,13 @@ namespace SharpTwitch.EventSub.Client
                             throw new ArgumentOutOfRangeException($"Unknown message type: {result.MessageType}");
                     }
                 }
+                catch (OperationCanceledException ex)
+                {
+                    var errorMessage = CreateErrorMessage("ProcessData has been canceled likely due to disconnection.", ex);
+                    OnErrorMessage?.Invoke(this, errorMessage);
+                    _cancellationTokenSource.Dispose();
+                    break;
+                }
                 catch (Exception ex)
                 {
                     var errorMessage = CreateErrorMessage("An error ocurred while handling incoming message.", ex);
@@ -142,17 +146,7 @@ namespace SharpTwitch.EventSub.Client
         /// <inheritdoc/>
         public async ValueTask DisposeAsync()
         {
-            _source.Cancel();
-            _source.Dispose();
-
-            await DisposeAsyncCore().ConfigureAwait(false);
-        }
-
-        private async ValueTask DisposeAsyncCore()
-        {
-            if (Connected)
-                await DisconnectAsync().ConfigureAwait(false);
-
+            await DisconnectAsync().ConfigureAwait(false);
             _webSocket.Dispose();
         }
     }
