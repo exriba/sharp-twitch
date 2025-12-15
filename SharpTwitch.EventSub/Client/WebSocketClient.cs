@@ -1,8 +1,8 @@
-﻿using System.Text;
-using Ardalis.GuardClauses;
-using System.Net.WebSockets;
+﻿using Ardalis.GuardClauses;
 using SharpTwitch.EventSub.Core.EventMessageArgs;
 using SharpTwitch.EventSub.Core.Models.Client;
+using System.Net.WebSockets;
+using System.Text;
 
 namespace SharpTwitch.EventSub.Client
 {
@@ -17,31 +17,33 @@ namespace SharpTwitch.EventSub.Client
         #endregion
 
         private readonly ClientWebSocket _webSocket;
+        private CancellationTokenSource _source;
 
         public WebSocketClient()
         {
             _webSocket = new ClientWebSocket();
+            _source = new CancellationTokenSource();
         }
 
         public bool Connected => _webSocket.State is WebSocketState.Open;
 
-        public bool Faulted => _webSocket.CloseStatus is not WebSocketCloseStatus.Empty && 
+        public bool Faulted => _webSocket.CloseStatus is not WebSocketCloseStatus.Empty &&
             _webSocket.CloseStatus is not WebSocketCloseStatus.NormalClosure;
 
-        internal async Task<bool> ConnectAsync(Uri uri)
+        internal async Task<bool> ConnectAsync(Uri uri, CancellationToken cancellationToken = default)
         {
             Guard.Against.Null(uri, nameof(uri));
+            _source = _source.IsCancellationRequested ? new() : _source;
+            var token = _source.Token;
 
             try
             {
-                if (_webSocket.State is WebSocketState.Open || _webSocket.State is WebSocketState.Connecting)
+                if (Connected)
                     return true;
 
-                await _webSocket.ConnectAsync(uri, CancellationToken.None);
+                await _webSocket.ConnectAsync(uri, cancellationToken).ConfigureAwait(false);
 
-#pragma warning disable 4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(ProcessDataAsync).ConfigureAwait(false);
-#pragma warning disable 4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                _ = Task.Run(() => ProcessDataAsync(token), token);
 
                 return Connected;
             }
@@ -53,13 +55,15 @@ namespace SharpTwitch.EventSub.Client
             }
         }
 
-        internal async Task<bool> DisconnectAsync()
+        internal async Task<bool> DisconnectAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                if (_webSocket.State is WebSocketState.Open || _webSocket.State is WebSocketState.Connecting)
-                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                if (Connected)
+                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnecting websocket client.", cancellationToken).ConfigureAwait(false);
 
+                _source.Cancel();
+                _source.Dispose();
                 return true;
             }
             catch (Exception ex)
@@ -70,7 +74,7 @@ namespace SharpTwitch.EventSub.Client
             }
         }
 
-        private async Task ProcessDataAsync()
+        private async Task ProcessDataAsync(CancellationToken cancellationToken = default)
         {
             var buffer = new ArraySegment<byte>(new byte[1024]);
 
@@ -82,25 +86,25 @@ namespace SharpTwitch.EventSub.Client
                     using var memoryStream = new MemoryStream();
                     do
                     {
-                        result = await _webSocket.ReceiveAsync(buffer, CancellationToken.None);
-                        memoryStream.Write(buffer.Array!, buffer.Offset, result.Count);
+                        result = await _webSocket.ReceiveAsync(buffer, cancellationToken);
+                        await memoryStream.WriteAsync(buffer.Array!, buffer.Offset, result.Count, cancellationToken);
                     } while (!result.EndOfMessage);
-                    
+
                     memoryStream.Seek(0, SeekOrigin.Begin);
 
                     switch (result.MessageType)
                     {
                         case WebSocketMessageType.Text:
-                        {
-                            if (memoryStream.Length is 0)
-                                continue;
+                            {
+                                if (memoryStream.Length is 0)
+                                    continue;
 
-                            using var reader = new StreamReader(memoryStream, Encoding.UTF8);
-                            var message = await reader.ReadToEndAsync();
-                            var dataMessage = new T{ Message = message };
-                            OnDataMessage?.Invoke(this, dataMessage);
-                            break;
-                        }
+                                using var reader = new StreamReader(memoryStream, Encoding.UTF8);
+                                var message = await reader.ReadToEndAsync();
+                                var dataMessage = new T { Message = message };
+                                OnDataMessage?.Invoke(this, dataMessage);
+                                break;
+                            }
                         case WebSocketMessageType.Close:
                         case WebSocketMessageType.Binary:
                             break;
@@ -117,7 +121,7 @@ namespace SharpTwitch.EventSub.Client
             }
         }
 
-        internal CloseDetails GetCloseDetails() 
+        internal CloseDetails GetCloseDetails()
         {
             return new CloseDetails
             {
@@ -138,14 +142,17 @@ namespace SharpTwitch.EventSub.Client
         /// <inheritdoc/>
         public async ValueTask DisposeAsync()
         {
+            _source.Cancel();
+            _source.Dispose();
+
             await DisposeAsyncCore().ConfigureAwait(false);
         }
 
-        protected virtual async ValueTask DisposeAsyncCore()
+        private async ValueTask DisposeAsyncCore()
         {
             if (Connected)
                 await DisconnectAsync().ConfigureAwait(false);
-            
+
             _webSocket.Dispose();
         }
     }
