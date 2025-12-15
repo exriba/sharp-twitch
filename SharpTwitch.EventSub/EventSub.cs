@@ -24,8 +24,7 @@ namespace SharpTwitch.EventSub
         #region Constants
         private const string METADATA = "metadata";
         private const string MESSAGE_TYPE = "message_type";
-        //private const string TWITCH_EVENTSUB_URL = "wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30";
-        private const string TWITCH_EVENTSUB_URL = "ws://127.0.0.1:8090/ws";
+        private const string TWITCH_EVENTSUB_URL = "wss://eventsub.wss.twitch.tv/ws";
         #endregion
 
         #region EventHandlers
