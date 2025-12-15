@@ -1,18 +1,18 @@
-﻿using System.Text.Json;
-using SharpTwitch.EventSub.Client;
+﻿using Ardalis.GuardClauses;
 using Microsoft.Extensions.Logging;
-using SharpTwitch.EventSub.Core.Enums;
-using SharpTwitch.EventSub.Core.Models;
-using SharpTwitch.EventSub.Core.EventArgs;
-using SharpTwitch.EventSub.Core.EventMessageArgs;
-using SharpTwitch.EventSub.Core.Handler;
-using Ardalis.GuardClauses;
-using SharpTwitch.Core.NamingPolicies;
 using SharpTwitch.Core.Enums;
-using SharpTwitch.EventSub.Core.EventArgs.User;
-using SharpTwitch.EventSub.Core.EventArgs.Stream;
+using SharpTwitch.Core.NamingPolicies;
+using SharpTwitch.EventSub.Client;
+using SharpTwitch.EventSub.Core.Enums;
+using SharpTwitch.EventSub.Core.EventArgs;
 using SharpTwitch.EventSub.Core.EventArgs.Channel.Redemption;
 using SharpTwitch.EventSub.Core.EventArgs.Channel.Reward;
+using SharpTwitch.EventSub.Core.EventArgs.Stream;
+using SharpTwitch.EventSub.Core.EventArgs.User;
+using SharpTwitch.EventSub.Core.EventMessageArgs;
+using SharpTwitch.EventSub.Core.Handler;
+using SharpTwitch.EventSub.Core.Models;
+using System.Text.Json;
 
 namespace SharpTwitch.EventSub
 {
@@ -44,49 +44,30 @@ namespace SharpTwitch.EventSub
         #region Mutable fields
         private TimeSpan _keepAliveTimeout;
         private DateTimeOffset _lastReceived;
-        public WebSocketClient webSocketClient { get; private set; } = new();
-        public string SessionId { get; private set; } = string.Empty;
         private CancellationTokenSource _cancellationTokenSource = new();
+        private TaskCompletionSource<bool> _connectionCompletionSource;
         private ConnectionStatus _connectionStatus = ConnectionStatus.DISCONNECTED;
+        public WebSocketClient WebSocketClient { get; private set; }
+        public string SessionId { get; private set; } = string.Empty;
         #endregion
 
         #region Immutable fields
         private readonly ILogger<EventSub>? _logger;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
-        private readonly IDictionary<SubscriptionType, INotificationHandler> _notificationHandlerMap;
+        private readonly IDictionary<SubscriptionType, INotificationHandler> _notificationHandlerMap = new Dictionary<SubscriptionType, INotificationHandler>();
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+        {
+            IncludeFields = true,
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = new SnakeCaseNamingPolicy()
+        };
         #endregion
 
         public EventSub(IEnumerable<INotificationHandler> notificationHandlers, ILogger<EventSub>? logger = null)
         {
             Guard.Against.Null(notificationHandlers, nameof(notificationHandlers));
-
-            _logger = logger;
-            webSocketClient.OnDataMessage += OnDataMessage;
-            webSocketClient.OnErrorMessage += OnErrorOcurred;
-            _notificationHandlerMap = new Dictionary<SubscriptionType, INotificationHandler>();
-            _jsonSerializerOptions = new JsonSerializerOptions
-            {
-                IncludeFields = true,
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = new SnakeCaseNamingPolicy()
-            };
-
+            WebSocketClient = new WebSocketClient();
             ConfigureHandlers(notificationHandlers);
-        }
-
-        /// <summary>
-        /// Resets Mutable fields.
-        /// </summary>
-        private void Reset()
-        {
-            SessionId = string.Empty;
-            _keepAliveTimeout = TimeSpan.Zero;
-            _lastReceived = DateTimeOffset.MinValue;
-            _connectionStatus = ConnectionStatus.DISCONNECTED;
-            webSocketClient = new WebSocketClient();
-            webSocketClient.OnDataMessage += OnDataMessage;
-            webSocketClient.OnErrorMessage += OnErrorOcurred;
-            _cancellationTokenSource = new CancellationTokenSource();
+            _logger = logger;
         }
 
         /// <summary>
@@ -103,103 +84,111 @@ namespace SharpTwitch.EventSub
         /// Connects the websocket client to Twitch.
         /// </summary>
         /// <param name="uri">uri (Optional)</param>
-        /// <returns><see langword="true"/> if the websocket client connects successfully. Otherwise returns <see langword="false"/>.</returns>
-        public async Task<bool> ConnectAsync(Uri? uri = null)
+        /// <param name="cancellationToken">the cancellation token</param>
+        public async Task ConnectAsync(Uri? uri = null, CancellationToken cancellationToken = default)
         {
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
+            WebSocketClient = new WebSocketClient();
+            WebSocketClient.OnDataMessage += OnDataMessage;
+            WebSocketClient.OnErrorMessage += OnErrorOcurred;
+            _cancellationTokenSource = _cancellationTokenSource.IsCancellationRequested ? new() : _cancellationTokenSource;
+            var token = _cancellationTokenSource.Token;
 
-            await webSocketClient.ConnectAsync(uri).ConfigureAwait(false);
+            await WebSocketClient.ConnectAsync(uri, cancellationToken).ConfigureAwait(false);
 
-            if (!webSocketClient.Connected)
-                return false;
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Run(ConnectionCheckAsync, _cancellationTokenSource.Token);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-            return true;
+            _ = Task.Run(() => ConnectionCheckAsync(WebSocketClient, token), token);
         }
 
         /// <summary>
         /// Disconnects the websocket client from Twitch.
         /// </summary>
-        /// <returns><see langword="true"/> if the websocket client disconnects successfully. Otherwise returns <see langword="false"/>.</returns>
-        public async Task<bool> DisconnectAsync()
+        /// <param name="cancellationToken">the cancellation token</param>
+        public async Task DisconnectAsync(CancellationToken cancellationToken = default)
         {
-            if (!webSocketClient.Connected)
-                return true;
+            if (!WebSocketClient.Connected)
+                return;
 
             _cancellationTokenSource.Cancel();
-            return await webSocketClient.DisconnectAsync().ConfigureAwait(false);
+            await WebSocketClient.DisconnectAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        private async Task ConnectionCheckAsync(WebSocketClient webSocketClient, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                while (webSocketClient.Connected)
+                {
+                    var lastReceived = _lastReceived.Add(_keepAliveTimeout);
+
+                    if (lastReceived != DateTimeOffset.MinValue && lastReceived < DateTimeOffset.Now)
+                        break;
+
+                    var delay = _keepAliveTimeout == TimeSpan.Zero ? TimeSpan.FromSeconds(10) : _keepAliveTimeout;
+                    await Task.Delay(delay, cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger?.LogDebug("ConnectionCheck has been canceled due to disconnection or reconnection.");
+                _cancellationTokenSource.Dispose();
+            }
+
+            if (!webSocketClient.Connected)
+            {
+                var closeDetails = webSocketClient.GetCloseDetails();
+                var disconnectedMessage = new ClientDisconnectedArgs()
+                {
+                    WebSocketCloseStatus = closeDetails.CloseStatus,
+                    CloseStatusDescription = closeDetails.Description ?? string.Empty,
+                };
+                OnClientDisconnected?.Invoke(this, disconnectedMessage);
+            }
         }
 
         /// <summary>
         /// Reconnects the websocket client to Twitch.
         /// </summary>
         /// <param name="uri">uri (Optional)</param>
-        /// <returns><see langword="true"/> if the websocket client connects successfully. Otherwise returns <see langword="false"/>.</returns>
-        public async Task<bool> ReconnectAsync(Uri? uri = null)
+        /// <param name="cancellationToken">the cancellation token</param>
+        public async Task ReconnectAsync(Uri? uri = null, CancellationToken cancellationToken = default)
         {
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
-
-            if (_connectionStatus is ConnectionStatus.RECONNECTION_REQUESTED)
-            {
-                var webSocketClient = new WebSocketClient();
-                webSocketClient.OnDataMessage += OnDataMessage;
-                webSocketClient.OnErrorMessage += OnErrorMessage;
-
-                await webSocketClient.ConnectAsync(uri).ConfigureAwait(false);
-
-                if (!webSocketClient.Connected)
-                    return false;
-
-                for (var i = 0; i < 200; i++)
-                {
-                    if (_cancellationTokenSource.IsCancellationRequested)
-                        break;
-
-                    if (_connectionStatus is ConnectionStatus.CONNECTED)
-                    {
-                        var oldWebSocketClient = this.webSocketClient;
-                        this.webSocketClient = webSocketClient;
-                        await oldWebSocketClient.DisposeAsync();
-
-                        return true;
-                    }
-
-                    await Task.Delay(100);
-                }
-
-                _logger?.LogError("Unable to reconnect websocket connection for session {SessionId}.", SessionId);
-
-                return false;
-            }
-
-            await DisposeAsync().ConfigureAwait(false);
-            return await ConnectAsync(uri);
+            await DisconnectAsync(cancellationToken).ConfigureAwait(false);
+            await ConnectAsync(uri, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task ConnectionCheckAsync()
+        private async Task ReconnectAsync(Uri? uri = null)
         {
-            while (webSocketClient.Connected && !_cancellationTokenSource.IsCancellationRequested)
+            uri ??= new Uri(TWITCH_EVENTSUB_URL);
+            _cancellationTokenSource.Cancel();
+
+            var webSocketClient = new WebSocketClient();
+            webSocketClient.OnDataMessage += OnDataMessage;
+            webSocketClient.OnErrorMessage += OnErrorMessage;
+
+            await webSocketClient.ConnectAsync(uri);
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _connectionCompletionSource = new TaskCompletionSource<bool>();
+            var token = _cancellationTokenSource.Token;
+
+            _ = Task.Run(() => ConnectionCheckAsync(webSocketClient, token), token);
+
+            var connectionTask = _connectionCompletionSource.Task;
+            var timeoutTask = Task.Delay(_keepAliveTimeout);
+
+            var completedTask = await Task.WhenAny(connectionTask, timeoutTask);
+
+            if (completedTask == connectionTask && connectionTask.Result)
             {
-                var lastReceived = _lastReceived.Add(_keepAliveTimeout);
-
-                if (lastReceived != DateTimeOffset.MinValue && lastReceived < DateTimeOffset.Now)
-                    break;
-
-                await Task.Delay(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
+                var oldWebSocketClient = WebSocketClient;
+                WebSocketClient = webSocketClient;
+                await oldWebSocketClient.DisconnectAsync();
+                return;
             }
 
-            await DisconnectAsync();
-
-            var closeDetails = webSocketClient.GetCloseDetails();
-            var disconnectedMessage = new ClientDisconnectedArgs()
-            {
-                WebSocketCloseStatus = closeDetails.CloseStatus,
-                CloseStatusDescription = closeDetails.Description ?? string.Empty,
-            };
-            OnClientDisconnected?.Invoke(this, disconnectedMessage);
+            _connectionCompletionSource.SetResult(false);
+            _logger?.LogError("Connection Timeout. Unable to reconnect websocket for session {SessionId}.", SessionId);
         }
 
         /// <summary>
@@ -263,12 +252,18 @@ namespace SharpTwitch.EventSub
         {
             var data = jsonDocument.Deserialize<EventSubMessage<SessionPayload>>(_jsonSerializerOptions)!;
 
+            var keepAliveTimeout = data.Payload.Session.KeepaliveTimeoutSeconds * 1.2;
+            _keepAliveTimeout = TimeSpan.FromSeconds(keepAliveTimeout!.Value);
             SessionId = data.Payload.Session.Id;
-            var keepAliveTimeout = data.Payload.Session.KeepaliveTimeoutSeconds + data.Payload.Session.KeepaliveTimeoutSeconds * 0.2;
-            _keepAliveTimeout = keepAliveTimeout > 0 ? TimeSpan.FromSeconds(keepAliveTimeout) : TimeSpan.FromSeconds(10);
 
-            _logger?.LogDebug("New session {session} started.", SessionId);
-            OnClientConnected?.Invoke(this, new ClientConnectedArgs { ReconnectionRequested = _connectionStatus == ConnectionStatus.RECONNECTION_REQUESTED });
+            _logger?.LogDebug("New session {sessionId} started.", SessionId);
+
+            if (_connectionStatus is ConnectionStatus.RECONNECTION_REQUESTED)
+            {
+                OnClientConnected?.Invoke(this, new ClientConnectedArgs { ReconnectionRequested = true });
+                _connectionCompletionSource.SetResult(true);
+            }
+
             _connectionStatus = ConnectionStatus.CONNECTED;
         }
 
@@ -282,7 +277,9 @@ namespace SharpTwitch.EventSub
 
             _connectionStatus = ConnectionStatus.RECONNECTION_REQUESTED;
             _logger?.LogWarning("Reconnection requested for session {sessionId}.", SessionId);
-            Task.Run(async () => await ReconnectAsync(new Uri(data.Payload.Session.ReconnectUrl!)));
+
+            var reconnectionUri = new Uri(data.Payload.Session.ReconnectUrl!);
+            Task.Run(() => ReconnectAsync(reconnectionUri));
         }
 
         /// <summary>
@@ -291,7 +288,8 @@ namespace SharpTwitch.EventSub
         /// <param name="jsonDocument">message</param>
         private void HandleKeepAlive(JsonDocument jsonDocument)
         {
-            _logger?.LogDebug("{message}", jsonDocument);
+            var timeStamp = DateTimeOffset.UtcNow;
+            _logger?.LogDebug("Heartbeat {timestamp}", timeStamp);
         }
 
         /// <summary>
@@ -328,7 +326,7 @@ namespace SharpTwitch.EventSub
         }
 
         /// <inheritdoc/>
-        internal override void RaiseEvent(SubscriptionType subscriptionType, System.EventArgs args) 
+        internal override void RaiseEvent(SubscriptionType subscriptionType, System.EventArgs args)
         {
             switch (subscriptionType)
             {
@@ -378,8 +376,19 @@ namespace SharpTwitch.EventSub
 
         protected virtual async ValueTask DisposeAsyncCore()
         {
-            await webSocketClient.DisposeAsync().ConfigureAwait(false);
-            Reset();
+            CleanUp();
+            await WebSocketClient.DisposeAsync().ConfigureAwait(false);
+        }
+
+        private void CleanUp()
+        {
+            SessionId = string.Empty;
+            _connectionStatus = ConnectionStatus.DISCONNECTED;
+            if (!_cancellationTokenSource.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
         }
     }
 }
