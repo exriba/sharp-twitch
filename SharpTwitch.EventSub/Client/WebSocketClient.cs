@@ -111,16 +111,19 @@ namespace SharpTwitch.EventSub.Client
                 }
                 catch (OperationCanceledException ex)
                 {
-                    var errorMessage = CreateErrorMessage("ProcessData has been canceled likely due to disconnection.", ex);
+                    var errorMessage = CreateErrorMessage("Operation Canceled. Unable to process incoming data.", ex);
                     OnErrorMessage?.Invoke(this, errorMessage);
                     _cancellationTokenSource.Dispose();
-                    break;
+                }
+                catch (ArgumentException ex)
+                {
+                    var errorMessage = CreateErrorMessage("Unable to parse incoming message.", ex);
+                    OnErrorMessage?.Invoke(this, errorMessage);
                 }
                 catch (Exception ex)
                 {
                     var errorMessage = CreateErrorMessage("An error ocurred while handling incoming message.", ex);
                     OnErrorMessage?.Invoke(this, errorMessage);
-                    break;
                 }
             }
         }
