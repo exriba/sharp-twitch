@@ -1,0 +1,78 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET CI
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build    
+        run: dotnet build --configuration Release --no-restore
+
+      # Upload the compiled files so the Test job can use them
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ./**/bin/Release/
+          
+  test:
+    runs-on: ubuntu-latest
+    needs: build # Ensures this job only runs after 'build' succeeds
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      # Download the binaries from the Build job
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      - name: Run Tests
+        run: dotnet test --configuration Release --logger "trx" --results-directory ./TestResults
+
+      - name: Aggregate Test Results
+        if: always()
+        run: |
+          TOTAL=0
+          PASSED=0
+          FAILED=0
+
+          for FILE in ./TestResults/*.trx; do
+            T=$(grep -oP 'total="\K[0-9]+' "$FILE")
+            P=$(grep -oP 'passed="\K[0-9]+' "$FILE")
+            F=$(grep -oP 'failed="\K[0-9]+' "$FILE")
+
+            TOTAL=$((TOTAL + T))
+            PASSED=$((PASSED + P))
+            FAILED=$((FAILED + F))
+          done
+
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Total: $TOTAL" >> $GITHUB_STEP_SUMMARY
+          echo "- Passed: ✅ $PASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- Failed: ❌ $FAILED" >> $GITHUB_STEP_SUMMARY
