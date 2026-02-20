@@ -13,12 +13,14 @@ Designed for integrations or services that rely on Twitch’s authenticated APIs
 
 ## Repository Structure
 
+```
 SharpTwitch.sln
 ├── SharpTwitch                 # Helix and Auth wrapper
 ├── SharpTwitch.Auth            # OAuth and token handling
 ├── SharpTwitch.Helix           # Helix API wrappers
 ├── SharpTwitch.EventSub        # EventSub subscription support
 ├── *.Tests                     # Unit tests for each module
+```
 
 ## Getting Started
 
