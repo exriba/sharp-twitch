@@ -1,8 +1,8 @@
 ﻿using Moq;
 using SharpTwitch.Auth.Models;
 using SharpTwitch.Core;
-using SharpTwitch.Core.Settings;
 using SharpTwitch.Core.Enums;
+using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch.Auth.Tests
 {
@@ -16,7 +16,7 @@ namespace SharpTwitch.Auth.Tests
         private readonly Mock<IApiCore> _mockApiCore;
         private readonly Mock<ICoreSettings> _mockCoreSettings;
 
-        public AuthApiTests() 
+        public AuthApiTests()
         {
             _mockApiCore = new Mock<IApiCore>();
             _mockCoreSettings = new Mock<ICoreSettings>();
@@ -24,6 +24,23 @@ namespace SharpTwitch.Auth.Tests
             _mockCoreSettings.Setup(x => x.ClientId).Returns("ClientId");
             _mockCoreSettings.Setup(x => x.RedirectUri).Returns("RedirectUri");
             _authApi = new AuthApi(_mockCoreSettings.Object, _mockApiCore.Object);
+        }
+
+        [Fact]
+        public async Task AuthApi_GetApplicationAccessTokenAsync()
+        {
+            var tokenResponse = new AccessTokenResponse();
+
+            _mockApiCore.Setup(x => x.PostAsync<AccessTokenResponse>(
+                    It.IsAny<UrlFragment>(),
+                    It.IsAny<IDictionary<Header, string>>(),
+                    It.IsAny<FormUrlEncodedContent>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(tokenResponse));
+
+            var data = await _authApi.GetApplicationAccessTokenAsync(CancellationToken.None);
+
+            Assert.Equal(tokenResponse, data);
         }
 
         [Theory]
