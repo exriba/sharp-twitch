@@ -1,8 +1,8 @@
 ﻿using Ardalis.GuardClauses;
 using SharpTwitch.Auth.Models;
 using SharpTwitch.Core;
-using SharpTwitch.Core.Settings;
 using SharpTwitch.Core.Enums;
+using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch.Auth
 {
@@ -18,6 +18,27 @@ namespace SharpTwitch.Auth
         {
             _apiCore = apiCore;
             _coreSettings = coreSettings;
+        }
+
+        /// <inheritdoc/>
+        public async Task<AccessTokenResponse> GetApplicationAccessTokenAsync(CancellationToken cancellationToken)
+        {
+            var headers = new Dictionary<Header, string>
+            {
+                { Header.CONTENT_TYPE_FORM_URL_ENCODED, string.Empty },
+            };
+            var content = new Dictionary<Header, string>
+            {
+                { Header.CLIENT_ID, _coreSettings.ClientId },
+                { Header.CLIENT_SECRET, _coreSettings.Secret },
+                { Header.GRANT_TYPE, "client_credentials" }
+            };
+
+            var args = content.ToDictionary(kvp => kvp.Key.ToString().ToLower(), kvp => kvp.Value);
+            var formUrlEncodedContent = new FormUrlEncodedContent(args);
+
+            return await _apiCore.PostAsync<AccessTokenResponse>(UrlFragment.OAUTH2_TOKEN, headers, formUrlEncodedContent, cancellationToken)
+                     .ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
