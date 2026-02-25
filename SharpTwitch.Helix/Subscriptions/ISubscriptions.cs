@@ -17,7 +17,7 @@ namespace SharpTwitch.Helix.Subscriptions
         /// <param name="subscriptionId">id of the subscription</param>
         /// <param name="cancellationToken">cancellation token</param>
         Task DeleteEventSubSubscriptionAsync(string broadcasterId, string authCode, string subscriptionId, CancellationToken cancellationToken);
-        
+
         /// <summary>
         /// Retrieves a collection of event sub subscriptions including their cost details.
         /// </summary>

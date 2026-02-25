@@ -4,7 +4,7 @@
     {
         public T Notification { get; set; }
 
-        protected EventSubEventArgs(T notification) 
+        protected EventSubEventArgs(T notification)
         {
             Notification = notification;
         }

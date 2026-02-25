@@ -1,6 +1,6 @@
-﻿using System.Web;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using SharpTwitch.Core.Enums;
+using System.Web;
 
 namespace SharpTwitch.Auth.Helpers
 {

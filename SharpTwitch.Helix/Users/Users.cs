@@ -1,9 +1,9 @@
-﻿using SharpTwitch.Core.Settings;
+﻿using Ardalis.GuardClauses;
 using SharpTwitch.Core;
+using SharpTwitch.Core.Enums;
+using SharpTwitch.Core.Settings;
 using SharpTwitch.Helix.Models;
 using SharpTwitch.Helix.Models.User;
-using Ardalis.GuardClauses;
-using SharpTwitch.Core.Enums;
 
 namespace SharpTwitch.Helix.Users
 {

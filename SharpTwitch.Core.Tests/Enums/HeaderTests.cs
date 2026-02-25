@@ -26,7 +26,7 @@ namespace SharpTwitch.Core.Tests.Enums
         public void Header_Transform(Header header, string key)
         {
             var kvp = header.Transform(CONTENT);
-            
+
             Assert.Equal(kvp.Key, key);
             Assert.NotNull(kvp.Value);
         }

@@ -2,6 +2,6 @@
 {
     public class T : System.EventArgs
     {
-        public string Message { get; internal set; } = string.Empty; 
+        public string Message { get; internal set; } = string.Empty;
     }
 }

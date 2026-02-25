@@ -7,7 +7,7 @@ namespace SharpTwitch.Core.Exceptions
     /// </summary>
     public class UnauthorizedRequestException : HttpRequestException
     {
-        public UnauthorizedRequestException(string message) : base(message, null, HttpStatusCode.Unauthorized) 
+        public UnauthorizedRequestException(string message) : base(message, null, HttpStatusCode.Unauthorized)
         {
         }
 

@@ -1,11 +1,11 @@
-﻿using SharpTwitch.Core.Settings;
+﻿using Ardalis.GuardClauses;
 using SharpTwitch.Core;
-using Ardalis.GuardClauses;
 using SharpTwitch.Core.Enums;
-using SharpTwitch.Helix.Models;
-using System.Text.Json;
-using System.Text;
 using SharpTwitch.Core.Models;
+using SharpTwitch.Core.Settings;
+using SharpTwitch.Helix.Models;
+using System.Text;
+using System.Text.Json;
 
 namespace SharpTwitch.Helix.Subscriptions
 {

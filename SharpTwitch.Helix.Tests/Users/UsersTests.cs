@@ -1,8 +1,8 @@
 ﻿using Moq;
-using SharpTwitch.Helix.Models;
-using SharpTwitch.Helix.Tests.Common;
 using SharpTwitch.Core.Enums;
+using SharpTwitch.Helix.Models;
 using SharpTwitch.Helix.Models.User;
+using SharpTwitch.Helix.Tests.Common;
 
 namespace SharpTwitch.Helix.Tests.Users
 {

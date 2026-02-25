@@ -2,7 +2,6 @@ using Moq;
 using Moq.Protected;
 using SharpTwitch.Core.Enums;
 using SharpTwitch.Core.Models.Response;
-using System.Net.Http;
 using System.Text.Json;
 
 namespace SharpTwitch.Core.Tests
@@ -128,7 +127,7 @@ namespace SharpTwitch.Core.Tests
         }
 
         [Fact]
-        public void ApiCore_DeleteAsync_Throws_InvalidArgs() 
+        public void ApiCore_DeleteAsync_Throws_InvalidArgs()
         {
             var httpClientFactory = new DefaultHttpClientFactory();
             var apiCore = new ApiCore(httpClientFactory);
@@ -196,8 +195,8 @@ namespace SharpTwitch.Core.Tests
 
         public HttpClient CreateClient(string name)
         {
-            return _httpMessageHandler == null 
-                ? new HttpClient() 
+            return _httpMessageHandler == null
+                ? new HttpClient()
                 : new HttpClient(_httpMessageHandler);
         }
     }

@@ -1,8 +1,8 @@
 ﻿using Moq;
 using SharpTwitch.Core.Enums;
+using SharpTwitch.Core.Models;
 using SharpTwitch.Helix.Models;
 using SharpTwitch.Helix.Tests.Common;
-using SharpTwitch.Core.Models;
 
 namespace SharpTwitch.Helix.Tests.Subscriptions
 {
@@ -57,7 +57,7 @@ namespace SharpTwitch.Helix.Tests.Subscriptions
         {
             await Assert.ThrowsAnyAsync<ArgumentException>(async () => await _subscriptions.GetEventSubSubscriptionAsync(broadcasterId, authCode, CancellationToken.None));
         }
-        
+
         [Fact]
         public async Task Subscriptions_GetEventSubSubscriptionAsync()
         {
@@ -86,7 +86,7 @@ namespace SharpTwitch.Helix.Tests.Subscriptions
         [InlineData(EMPTY_STRING, AUTH_CODE, SESSION_ID)]
         [InlineData(WHITESPACE_STRING, AUTH_CODE, SESSION_ID)]
         [InlineData(BROADCASTER_ID, null, SESSION_ID)]
-        [InlineData(BROADCASTER_ID, EMPTY_STRING ,SESSION_ID)]
+        [InlineData(BROADCASTER_ID, EMPTY_STRING, SESSION_ID)]
         [InlineData(BROADCASTER_ID, WHITESPACE_STRING, SESSION_ID)]
         [InlineData(BROADCASTER_ID, AUTH_CODE, null)]
         [InlineData(BROADCASTER_ID, AUTH_CODE, EMPTY_STRING)]
