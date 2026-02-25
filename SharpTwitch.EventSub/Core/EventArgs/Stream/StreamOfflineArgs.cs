@@ -1,5 +1,5 @@
-﻿using SharpTwitch.EventSub.Core.Models.Stream;
-using SharpTwitch.EventSub.Core.Models;
+﻿using SharpTwitch.EventSub.Core.Models;
+using SharpTwitch.EventSub.Core.Models.Stream;
 
 namespace SharpTwitch.EventSub.Core.EventArgs.Stream
 {

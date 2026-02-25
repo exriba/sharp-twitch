@@ -1,8 +1,8 @@
 ﻿using SharpTwitch.Core.Enums;
 using SharpTwitch.EventSub.Core.EventArgs.Stream;
 using SharpTwitch.EventSub.Core.Handler;
-using SharpTwitch.EventSub.Core.Models.Stream;
 using SharpTwitch.EventSub.Core.Models;
+using SharpTwitch.EventSub.Core.Models.Stream;
 using System.Text.Json;
 
 namespace SharpTwitch.EventSub.Handler.Stream
@@ -21,7 +21,7 @@ namespace SharpTwitch.EventSub.Handler.Stream
             try
             {
                 var notification = jsonDocument.Deserialize<EventSubMessage<EventPayload<StreamOnline>>>(jsonSerializerOptions);
-                
+
                 if (notification is not null)
                     eventSubBase.RaiseEvent(SubscriptionType, new StreamOnlineArgs(notification));
             }

@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using SharpTwitch.Core.Enums;
+﻿using SharpTwitch.Core.Enums;
+using System.Text.Json;
 
 namespace SharpTwitch.EventSub.Core.Handler
 {

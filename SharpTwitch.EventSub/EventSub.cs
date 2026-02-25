@@ -45,8 +45,8 @@ namespace SharpTwitch.EventSub
         private TimeSpan _keepAliveTimeout;
         private DateTimeOffset _lastReceived;
         private CancellationTokenSource _cancellationTokenSource = new();
-        private TaskCompletionSource<bool> _connectionCompletionSource;
-        private ConnectionStatus _connectionStatus = ConnectionStatus.DISCONNECTED;
+        private TaskCompletionSource<bool> _connectionCompletionSource = new();
+
         public WebSocketClient WebSocketClient { get; private set; }
         public string SessionId { get; private set; } = string.Empty;
         #endregion
@@ -258,13 +258,9 @@ namespace SharpTwitch.EventSub
 
             _logger?.LogDebug("New session {sessionId} started.", SessionId);
 
-            if (_connectionStatus is ConnectionStatus.RECONNECTION_REQUESTED)
-            {
-                OnClientConnected?.Invoke(this, new ClientConnectedArgs { ReconnectionRequested = true });
-                _connectionCompletionSource.SetResult(true);
-            }
-
-            _connectionStatus = ConnectionStatus.CONNECTED;
+            var reconnectionRequested = data.Metadata.MetadataMessageType == MessageType.SESSION_RECONNECT;
+            OnClientConnected?.Invoke(this, new ClientConnectedArgs { ReconnectionRequested = reconnectionRequested });
+            _connectionCompletionSource.SetResult(true);
         }
 
         /// <summary>
@@ -275,7 +271,6 @@ namespace SharpTwitch.EventSub
         {
             var data = jsonDocument.Deserialize<EventSubMessage<SessionPayload>>(_jsonSerializerOptions)!;
 
-            _connectionStatus = ConnectionStatus.RECONNECTION_REQUESTED;
             _logger?.LogWarning("Reconnection requested for session {sessionId}.", SessionId);
 
             var reconnectionUri = new Uri(data.Payload.Session.ReconnectUrl!);
@@ -383,12 +378,8 @@ namespace SharpTwitch.EventSub
         private void CleanUp()
         {
             SessionId = string.Empty;
-            _connectionStatus = ConnectionStatus.DISCONNECTED;
-            if (!_cancellationTokenSource.IsCancellationRequested)
-            {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose();
-            }
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }

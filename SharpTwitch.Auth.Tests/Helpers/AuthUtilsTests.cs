@@ -1,6 +1,6 @@
-﻿using System.Web;
+﻿using SharpTwitch.Auth.Helpers;
 using SharpTwitch.Core.Enums;
-using SharpTwitch.Auth.Helpers;
+using System.Web;
 
 namespace SharpTwitch.Auth.Tests.Helpers
 {
@@ -23,7 +23,7 @@ namespace SharpTwitch.Auth.Tests.Helpers
         {
             var forceVerify = false;
             var state = Guid.NewGuid().ToString();
-            
+
             Assert.ThrowsAny<ArgumentException>(() => AuthUtils.GenerateAuthorizationUrl(clientId, redirectUri, scopes, state, forceVerify));
         }
 

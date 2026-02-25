@@ -1,9 +1,9 @@
 ﻿using SharpTwitch.Core.Enums;
+using SharpTwitch.EventSub.Core.EventArgs.Stream;
 using SharpTwitch.EventSub.Core.Handler;
 using SharpTwitch.EventSub.Core.Models;
-using System.Text.Json;
 using SharpTwitch.EventSub.Core.Models.Stream;
-using SharpTwitch.EventSub.Core.EventArgs.Stream;
+using System.Text.Json;
 
 namespace SharpTwitch.EventSub.Handler.Stream
 {

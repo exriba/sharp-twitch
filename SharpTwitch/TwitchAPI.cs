@@ -1,7 +1,7 @@
 ﻿using SharpTwitch.Auth;
-using SharpTwitch.Helix;
 using SharpTwitch.Core;
 using SharpTwitch.Core.Settings;
+using SharpTwitch.Helix;
 
 namespace SharpTwitch
 {

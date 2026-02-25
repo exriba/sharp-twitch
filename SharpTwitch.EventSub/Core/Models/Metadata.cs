@@ -20,7 +20,7 @@ namespace SharpTwitch.EventSub.Core.Models
         {
             get
             {
-                var subscriptionType = SubscriptionType?.Replace(".", "_"); 
+                var subscriptionType = SubscriptionType?.Replace(".", "_");
                 return Enum.Parse<SubscriptionType>(subscriptionType, true);
             }
         }

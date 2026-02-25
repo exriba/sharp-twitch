@@ -1,7 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using SharpTwitch.Core;
-using SharpTwitch.Core.Settings;
 using SharpTwitch.Core.Enums;
+using SharpTwitch.Core.Settings;
 using SharpTwitch.Helix.Models;
 using SharpTwitch.Helix.Models.Channel.Reward;
 

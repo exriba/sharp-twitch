@@ -1,6 +1,6 @@
 ﻿using Moq;
-using SharpTwitch.Core.Settings;
 using SharpTwitch.Core;
+using SharpTwitch.Core.Settings;
 
 namespace SharpTwitch.Helix.Tests.Common
 {
@@ -14,7 +14,7 @@ namespace SharpTwitch.Helix.Tests.Common
         protected readonly Mock<IApiCore> _mockApiCore;
         protected readonly Mock<ICoreSettings> _mockCoreSettings;
 
-        protected TestFixture() 
+        protected TestFixture()
         {
             _mockApiCore = new Mock<IApiCore>();
             _mockCoreSettings = new Mock<ICoreSettings>();

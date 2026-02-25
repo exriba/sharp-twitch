@@ -1,11 +1,11 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.Json;
-using Ardalis.GuardClauses;
+﻿using Ardalis.GuardClauses;
 using SharpTwitch.Core.Enums;
 using SharpTwitch.Core.Exceptions;
-using SharpTwitch.Core.NamingPolicies;
 using SharpTwitch.Core.Models.Response;
+using SharpTwitch.Core.NamingPolicies;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace SharpTwitch.Core
 {
@@ -88,7 +88,8 @@ namespace SharpTwitch.Core
         private HttpClient CreateClient(IDictionary<Header, string> headers)
         {
             var client = _httpClientFactory.CreateClient();
-            headers.ToList().ForEach(param => {
+            headers.ToList().ForEach(param =>
+            {
                 var kvp = param.Key.Transform(param.Value);
                 client.DefaultRequestHeaders.TryAddWithoutValidation(kvp.Key, kvp.Value);
             });
