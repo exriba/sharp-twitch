@@ -46,8 +46,7 @@ namespace SharpTwitch.EventSub
         private DateTimeOffset _lastReceived;
         private CancellationTokenSource _cancellationTokenSource = new();
         private TaskCompletionSource<bool> _connectionCompletionSource = new();
-
-        public WebSocketClient WebSocketClient { get; private set; }
+        private WebSocketClient WebSocketClient;
         public string SessionId { get; private set; } = string.Empty;
         #endregion
 
@@ -62,11 +61,34 @@ namespace SharpTwitch.EventSub
         };
         #endregion
 
+        /// <summary>
+        /// Gets a value indicating whether the underlying WebSocket client is currently connected.
+        /// </summary>
+        public bool Connected => WebSocketClient is not null && WebSocketClient.Connected;
+
+        /// <summary>
+        /// Gets a value indicating whether the underlying WebSocket client is in a faulted state.
+        /// </summary>
+        public bool Faulted => WebSocketClient is not null && WebSocketClient.Faulted;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventSub"/> class.
+        /// </summary>
+        /// <param name="notificationHandlers">A collection of notification handlers that will process incoming messages.</param>
+        /// <param name="logger">An optional logger instance used for diagnostic and error logging.</param>
+        /// <remarks>
+        /// This constructor configures the provided notification handlers,
+        /// creates the underlying <see cref="WebSocketClient"/>, and subscribes
+        /// to its data and error events.
+        /// </remarks>
         public EventSub(IEnumerable<INotificationHandler> notificationHandlers, ILogger<EventSub>? logger = null)
         {
-            Guard.Against.Null(notificationHandlers, nameof(notificationHandlers));
-            WebSocketClient = new WebSocketClient();
             ConfigureHandlers(notificationHandlers);
+
+            WebSocketClient = new WebSocketClient();
+            WebSocketClient.OnDataMessage += OnDataMessage;
+            WebSocketClient.OnErrorMessage += OnErrorOcurred;
+
             _logger = logger;
         }
 
@@ -76,6 +98,8 @@ namespace SharpTwitch.EventSub
         /// <param name="notificationHandlers">notification handlers</param>
         private void ConfigureHandlers(IEnumerable<INotificationHandler> notificationHandlers)
         {
+            Guard.Against.Null(notificationHandlers, nameof(notificationHandlers));
+
             foreach (var handler in notificationHandlers)
                 _notificationHandlerMap.TryAdd(handler.SubscriptionType, handler);
         }
@@ -87,10 +111,10 @@ namespace SharpTwitch.EventSub
         /// <param name="cancellationToken">the cancellation token</param>
         public async Task ConnectAsync(Uri? uri = null, CancellationToken cancellationToken = default)
         {
+            if (Connected)
+                return;
+
             uri ??= new Uri(TWITCH_EVENTSUB_URL);
-            WebSocketClient = new WebSocketClient();
-            WebSocketClient.OnDataMessage += OnDataMessage;
-            WebSocketClient.OnErrorMessage += OnErrorOcurred;
             _cancellationTokenSource = _cancellationTokenSource.IsCancellationRequested ? new() : _cancellationTokenSource;
             var token = _cancellationTokenSource.Token;
 
@@ -105,7 +129,7 @@ namespace SharpTwitch.EventSub
         /// <param name="cancellationToken">the cancellation token</param>
         public async Task DisconnectAsync(CancellationToken cancellationToken = default)
         {
-            if (!WebSocketClient.Connected)
+            if (!Connected)
                 return;
 
             _cancellationTokenSource.Cancel();
@@ -183,6 +207,8 @@ namespace SharpTwitch.EventSub
             {
                 var oldWebSocketClient = WebSocketClient;
                 WebSocketClient = webSocketClient;
+                oldWebSocketClient.OnDataMessage -= OnDataMessage;
+                oldWebSocketClient.OnErrorMessage -= OnErrorMessage;
                 await oldWebSocketClient.DisconnectAsync();
                 return;
             }
