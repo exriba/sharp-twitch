@@ -366,20 +366,7 @@ namespace SharpTwitch.EventSub
         /// <inheritdoc/>
         public async ValueTask DisposeAsync()
         {
-            await DisposeAsyncCore().ConfigureAwait(false);
-        }
-
-        protected virtual async ValueTask DisposeAsyncCore()
-        {
-            CleanUp();
             await WebSocketClient.DisposeAsync().ConfigureAwait(false);
-        }
-
-        private void CleanUp()
-        {
-            SessionId = string.Empty;
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
         }
     }
 }
