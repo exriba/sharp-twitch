@@ -23,6 +23,7 @@ namespace SharpTwitch.Core
         };
 
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly TimeSpan _requestTimeout = TimeSpan.FromSeconds(15);
 
         public ApiCore(IHttpClientFactory httpClientFactory)
         {
@@ -36,11 +37,20 @@ namespace SharpTwitch.Core
         {
             Guard.Against.NullOrEmpty(headers, nameof(headers));
 
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var uri = BuildUri(fragment, queryParams);
             using var client = CreateClient(headers);
-            var responseMessage = await client.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+            cts.CancelAfter(_requestTimeout);
 
-            return await HandleResponse<T>(responseMessage, cancellationToken);
+            try
+            {
+                var responseMessage = await client.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+                return await HandleResponse<T>(responseMessage, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Request to {uri} exceeded {_requestTimeout.TotalSeconds}.");
+            }
         }
 
         /// <inheritdoc/>
@@ -51,10 +61,20 @@ namespace SharpTwitch.Core
             Guard.Against.NullOrEmpty(headers, nameof(headers));
             Guard.Against.Null(formUrlEncodedContent, nameof(formUrlEncodedContent));
 
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             using var client = CreateClient(headers);
-            var responseMessage = await client.PostAsync(fragment.ConvertToString(), formUrlEncodedContent, cancellationToken).ConfigureAwait(false);
+            var uri = fragment.ConvertToString();
+            cts.CancelAfter(_requestTimeout);
 
-            return await HandleResponse<T>(responseMessage, cancellationToken);
+            try
+            {
+                var responseMessage = await client.PostAsync(uri, formUrlEncodedContent, cancellationToken).ConfigureAwait(false);
+                return await HandleResponse<T>(responseMessage, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Request to {uri} exceeded {_requestTimeout.TotalSeconds}.");
+            }
         }
 
         /// <inheritdoc/>
@@ -65,10 +85,20 @@ namespace SharpTwitch.Core
             Guard.Against.NullOrEmpty(headers, nameof(headers));
             Guard.Against.Null(stringContent, nameof(stringContent));
 
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             using var client = CreateClient(headers);
-            var responseMessage = await client.PostAsync(fragment.ConvertToString(), stringContent, cancellationToken).ConfigureAwait(false);
+            var uri = fragment.ConvertToString();
+            cts.CancelAfter(_requestTimeout);
 
-            return await HandleResponse<T>(responseMessage, cancellationToken);
+            try
+            {
+                var responseMessage = await client.PostAsync(uri, stringContent, cancellationToken).ConfigureAwait(false);
+                return await HandleResponse<T>(responseMessage, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Request to {uri} exceeded {_requestTimeout.TotalSeconds}.");
+            }
         }
 
         /// <inheritdoc/>
@@ -78,11 +108,20 @@ namespace SharpTwitch.Core
         {
             Guard.Against.NullOrEmpty(headers, nameof(headers));
 
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var uri = BuildUri(fragment, queryParams);
             using var client = CreateClient(headers);
-            var responseMessage = await client.DeleteAsync(uri, cancellationToken).ConfigureAwait(false);
+            cts.CancelAfter(_requestTimeout);
 
-            await HandleResponse(responseMessage, cancellationToken);
+            try
+            {
+                var responseMessage = await client.DeleteAsync(uri, cancellationToken).ConfigureAwait(false);
+                await HandleResponse(responseMessage, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cts.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+            {
+                throw new TimeoutException($"Request to {uri} exceeded {_requestTimeout.TotalSeconds}.");
+            }
         }
 
         private HttpClient CreateClient(IDictionary<Header, string> headers)
@@ -96,7 +135,7 @@ namespace SharpTwitch.Core
             return client;
         }
 
-        private async Task HandleResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
+        private static async Task HandleResponse(HttpResponseMessage responseMessage, CancellationToken cancellationToken)
         {
             if (!responseMessage.IsSuccessStatusCode)
                 await HandleException(responseMessage, cancellationToken);
@@ -106,7 +145,12 @@ namespace SharpTwitch.Core
         {
             await HandleResponse(responseMessage, cancellationToken);
             var content = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
-            return JsonSerializer.Deserialize<T>(content, JsonSerializerOptions);
+            var result = JsonSerializer.Deserialize<T>(content, JsonSerializerOptions);
+
+            if (result is null)
+                throw new InvalidOperationException($"Failed to deserialize response as {typeof(T).Name}. Response: {content}");
+
+            return result;
         }
 
         private static string BuildUri(UrlFragment fragment, IEnumerable<KeyValuePair<QueryParameter, string>>? queryParams)
@@ -114,7 +158,12 @@ namespace SharpTwitch.Core
             var uri = fragment.ConvertToString();
             var builder = new StringBuilder();
             if (queryParams is not null)
-                builder.AppendJoin("&", queryParams.Select(kvp => $"{kvp.Key.ConvertToString()}={kvp.Value}").ToArray());
+                builder.AppendJoin("&", queryParams.Select(kvp =>
+                {
+                    var key = kvp.Key.ConvertToString();
+                    var value = Uri.EscapeDataString(kvp.Value);
+                    return $"{key}={value}";
+                }).ToArray());
             return builder.Length is 0 ? uri : string.Join("?", uri, builder.ToString());
         }
 
