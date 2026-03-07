@@ -25,7 +25,7 @@ namespace SharpTwitch.EventSub.Handler.Channel.Reward
             }
             catch (Exception ex)
             {
-                ex.Data.Add("JSON", jsonDocument);
+                ex.Data["JSON"] = jsonDocument.RootElement.GetRawText();
                 eventSubBase.RaiseErrorEvent(SubscriptionType, ex);
             }
         }
