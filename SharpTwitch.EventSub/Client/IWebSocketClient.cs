@@ -11,7 +11,7 @@ namespace SharpTwitch.EventSub.Client
         /// <summary>
         /// Occurs when a data message is received from the WebSocket server.
         /// </summary>
-        event EventHandler<T>? OnDataMessage;
+        event EventHandler<DataMessageArgs>? OnDataMessage;
 
         /// <summary>
         /// Occurs when an error message or exception is raised by the WebSocket client.

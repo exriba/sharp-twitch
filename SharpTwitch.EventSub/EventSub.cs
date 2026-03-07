@@ -262,7 +262,7 @@ namespace SharpTwitch.EventSub
         /// </summary>
         /// <param name="sender">sender</param>
         /// <param name="e">event message args</param>
-        private void OnDataMessage(object? sender, T e)
+        private void OnDataMessage(object? sender, DataMessageArgs e)
         {
             if (e.Message is null)
                 return;

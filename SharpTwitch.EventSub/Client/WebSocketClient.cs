@@ -12,7 +12,7 @@ namespace SharpTwitch.EventSub.Client
     public class WebSocketClient : IWebSocketClient, IAsyncDisposable
     {
         /// <inheritdoc/>
-        public event EventHandler<T>? OnDataMessage;
+        public event EventHandler<DataMessageArgs>? OnDataMessage;
 
         /// <inheritdoc/>
         public event EventHandler<ErrorMessageArgs>? OnErrorMessage;
@@ -103,7 +103,7 @@ namespace SharpTwitch.EventSub.Client
 
                                 using var reader = new StreamReader(memoryStream, Encoding.UTF8);
                                 var message = await reader.ReadToEndAsync();
-                                var dataMessage = new T { Message = message };
+                                var dataMessage = new DataMessageArgs { Message = message };
                                 OnDataMessage?.Invoke(this, dataMessage);
                                 break;
                             }
