@@ -61,7 +61,7 @@ namespace SharpTwitch.EventSub
         private DateTimeOffset _lastReceived;
         private CancellationTokenSource _connectionCancellationSource = new();
         private TaskCompletionSource<bool> _connectionCompletionSource = new();
-        private WebSocketClient WebSocketClient;
+        private IWebSocketClient WebSocketClient;
         public string SessionId { get; private set; } = string.Empty;
         #endregion
 
@@ -80,13 +80,14 @@ namespace SharpTwitch.EventSub
         /// Initializes a new instance of the <see cref="EventSub"/> class.
         /// </summary>
         /// <param name="notificationHandlers">A collection of notification handlers that will process incoming messages.</param>
+        /// <param name="webSocketClient">A Websocket Client capable of receiving and pushing notification messages.</param>
         /// <param name="logger">An optional logger instance used for diagnostic and error logging.</param>
         /// <remarks>
         /// This constructor configures the provided notification handlers,
         /// creates the underlying <see cref="WebSocketClient"/>, and subscribes
         /// to its data and error events.
         /// </remarks>
-        public EventSub(IEnumerable<INotificationHandler> notificationHandlers, ILogger<EventSub>? logger = null)
+        public EventSub(IEnumerable<INotificationHandler> notificationHandlers, IWebSocketClient? webSocketClient = null, ILogger<EventSub>? logger = null)
         {
             _logger = logger ?? NullLogger<EventSub>.Instance;
             _notificationHandlerMap = new Dictionary<SubscriptionType, INotificationHandler>();
@@ -100,7 +101,7 @@ namespace SharpTwitch.EventSub
             };
 
             ConfigureHandlers(notificationHandlers);
-            WebSocketClient = new WebSocketClient();
+            WebSocketClient = webSocketClient ?? new WebSocketClient();
             WebSocketClient.OnDataMessage += OnDataMessage;
             WebSocketClient.OnErrorMessage += OnErrorOccurred;
         }
