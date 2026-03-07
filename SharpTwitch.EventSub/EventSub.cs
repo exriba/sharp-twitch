@@ -429,7 +429,7 @@ namespace SharpTwitch.EventSub
         }
 
         /// <inheritdoc/>
-        internal override void RaiseEvent(SubscriptionType subscriptionType, EventArgs args)
+        public override void RaiseEvent(SubscriptionType subscriptionType, EventArgs args)
         {
             switch (subscriptionType)
             {
@@ -460,7 +460,7 @@ namespace SharpTwitch.EventSub
         }
 
         /// <inheritdoc/>
-        internal override void RaiseErrorEvent(SubscriptionType subscriptionType, Exception exception)
+        public override void RaiseErrorEvent(SubscriptionType subscriptionType, Exception exception)
         {
             var errorMessage = new ErrorMessageArgs
             {
