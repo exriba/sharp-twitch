@@ -9,12 +9,20 @@ namespace SharpTwitch.EventSub.Client
     /// <summary>
     /// WebSocketClient.
     /// </summary>
-    public class WebSocketClient : IAsyncDisposable
+    public class WebSocketClient : IWebSocketClient, IAsyncDisposable
     {
-        #region Events
-        internal event EventHandler<T>? OnDataMessage;
-        internal event EventHandler<ErrorMessageArgs>? OnErrorMessage;
-        #endregion
+        /// <inheritdoc/>
+        public event EventHandler<T>? OnDataMessage;
+
+        /// <inheritdoc/>
+        public event EventHandler<ErrorMessageArgs>? OnErrorMessage;
+
+        /// <inheritdoc/>
+        public bool Connected => _webSocket.State is WebSocketState.Open;
+
+        /// <inheritdoc/>
+        public bool Faulted => _webSocket.CloseStatus is not WebSocketCloseStatus.Empty &&
+            _webSocket.CloseStatus is not WebSocketCloseStatus.NormalClosure;
 
         private readonly ClientWebSocket _webSocket;
         private CancellationTokenSource _cancellationTokenSource;
@@ -25,12 +33,8 @@ namespace SharpTwitch.EventSub.Client
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public bool Connected => _webSocket.State is WebSocketState.Open;
-
-        public bool Faulted => _webSocket.CloseStatus is not WebSocketCloseStatus.Empty &&
-            _webSocket.CloseStatus is not WebSocketCloseStatus.NormalClosure;
-
-        internal async Task ConnectAsync(Uri uri, CancellationToken cancellationToken = default)
+        /// <inheritdoc/>
+        public async Task ConnectAsync(Uri uri, CancellationToken cancellationToken = default)
         {
             Guard.Against.Null(uri, nameof(uri));
             _cancellationTokenSource = _cancellationTokenSource.IsCancellationRequested ? new() : _cancellationTokenSource;
@@ -52,7 +56,8 @@ namespace SharpTwitch.EventSub.Client
             }
         }
 
-        internal async Task DisconnectAsync(CancellationToken cancellationToken = default)
+        /// <inheritdoc/>
+        public async Task DisconnectAsync(CancellationToken cancellationToken = default)
         {
             if (!Connected)
                 return;
