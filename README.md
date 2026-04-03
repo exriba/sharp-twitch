@@ -51,6 +51,7 @@ Run specific tests
 dotnet test SharpTwitch.Auth.Tests
 dotnet test SharpTwitch.Core.Tests
 dotnet test SharpTwitch.Helix.Tests
+dotnet test SharpTwitch.EventSub.Tests
 ```
 
 ## Documentation
